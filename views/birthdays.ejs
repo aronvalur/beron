@@ -1,0 +1,50 @@
+<%- include('partials/head', { title: 'Afmæli' }) %>
+<%- include('partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Afmæli</h1>
+      <p class="subtitle">Bara til að halda þér upplýstri — Beron sér um gjafirnar sjálfkrafa.</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <a href="/birthdays?range=month" class="<%= range === 'month' ? 'active' : '' %>">Þessi mánuður</a>
+    <a href="/birthdays?range=30" class="<%= range === '30' ? 'active' : '' %>">Næstu 30 dagar</a>
+    <a href="/birthdays?range=90" class="<%= range === '90' ? 'active' : '' %>">Næstu 90 dagar</a>
+    <a href="/birthdays?range=all" class="<%= range === 'all' ? 'active' : '' %>">Allir</a>
+  </div>
+
+  <div class="card">
+    <% if (rows.length === 0) { %>
+      <div class="empty-state">
+        <h3>Ekkert að sjá hér</h3>
+        <p>Prófaðu víðara tímabil, eða bættu við afmælum á starfsmannasíðunni.</p>
+      </div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Starfsmaður</th><th>Deild</th><th>Dagsetning</th><th>Niðurtalning</th><th>Fjárhæð</th><th>Afhending</th></tr></thead>
+        <tbody>
+          <% rows.forEach(function(r) { %>
+            <tr>
+              <td><%= r.employee.name %></td>
+              <td><%= r.employee.department || '—' %></td>
+              <td><%= formatDate(r.date) %></td>
+              <td>
+                <strong>
+                  <% if (r.daysAway === 0) { %>Í dag
+                  <% } else if (r.daysAway > 0) { %><%= r.daysAway %> dagar
+                  <% } else { %><%= Math.abs(r.daysAway) %> dagar síðan
+                  <% } %>
+                </strong>
+              </td>
+              <td><%= r.employee.birthday_budget ? Number(r.employee.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td><%= deliveryPreferenceLabel(r.employee.delivery_preference) %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('partials/footer') %>

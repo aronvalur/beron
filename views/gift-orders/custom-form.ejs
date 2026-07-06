@@ -1,0 +1,71 @@
+<%- include('../partials/head', { title: 'Sértilefnisgjöf' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Ný sértilefnisgjöf</h1>
+      <p class="subtitle">Fyrir stöðuhækkanir, nýja starfsmenn, tímamót í lífi og önnur sérstök tilefni.</p>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:640px;">
+    <% if (employees.length === 0) { %>
+      <div class="empty-state">
+        <h3>Engir virkir starfsmenn</h3>
+        <p>Bættu við starfsmanni áður en þú stofnar gjafapöntun.</p>
+      </div>
+    <% } else { %>
+    <form method="POST" action="/gift-orders/custom">
+      <div class="field">
+        <label for="employee_id">Starfsmaður</label>
+        <select id="employee_id" name="employee_id" required>
+          <% employees.forEach(function(e) { %>
+            <option value="<%= e.id %>"><%= e.name %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="occasion">Tilefni</label>
+        <select id="occasion" name="occasion">
+          <option value="Nýr starfsmaður">Nýr starfsmaður</option>
+          <option value="Stöðuhækkun">Stöðuhækkun</option>
+          <option value="Starfsafmæli">Starfsafmæli</option>
+          <option value="Tímamót í lífi">Tímamót í lífi</option>
+          <option value="Annað">Annað</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="delivery_date">Afhendingardagur</label>
+          <input type="date" id="delivery_date" name="delivery_date" required>
+          <div class="hint">Hvenær á Beron að hafa afhent gjöfina?</div>
+        </div>
+        <div class="field">
+          <label for="budget_amount">Fjárhæð (kr., valfrjálst)</label>
+          <input type="number" id="budget_amount" name="budget_amount" min="0" step="500">
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-bottom:16px;">
+        Þjónustugjald Beron fyrir sértilefnispantanir: <strong><%= handlingFee.toLocaleString('is-IS') %> kr.</strong>
+        Þetta bætist við fjárhæðina hér að ofan og er innheimt sér á næsta reikningi.
+      </div>
+      <div class="field">
+        <label for="delivery_method">Afhendingarmáti</label>
+        <select id="delivery_method" name="delivery_method">
+          <option value="to_employee">Heim til starfsmanns</option>
+          <option value="to_hr_office">Á skrifstofu starfsmannamála</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="notes">Athugasemdir</label>
+        <textarea id="notes" name="notes" placeholder="Allt sem Beron ætti að vita"></textarea>
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn">Stofna gjafapöntun</button>
+        <a href="/gift-orders" class="btn btn-secondary">Hætta við</a>
+      </div>
+    </form>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

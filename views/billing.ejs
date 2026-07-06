@@ -1,0 +1,71 @@
+<%- include('partials/head', { title: 'Áskrift og greiðslur' }) %>
+<%- include('partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Áskrift og greiðslur</h1>
+      <p class="subtitle">Handvirk mánaðarleg reikningagerð í fyrstu útgáfu &mdash; ekkert greiðslukort skráð.</p>
+    </div>
+  </div>
+
+  <% if (saved) { %><div class="alert alert-success">Greiðsluupplýsingar vistaðar.</div><% } %>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h2>Greiðsluupplýsingar fyrirtækis</h2>
+      <form method="POST" action="/billing">
+        <div class="field">
+          <label for="kennitala">Kennitala</label>
+          <input type="text" id="kennitala" name="kennitala" value="<%= company.kennitala %>" required>
+        </div>
+        <div class="field">
+          <label for="billing_email">Netfang vegna greiðslna</label>
+          <input type="email" id="billing_email" name="billing_email" value="<%= company.billing_email %>" required>
+        </div>
+        <div class="field">
+          <label for="billing_address">Heimilisfang vegna greiðslna</label>
+          <input type="text" id="billing_address" name="billing_address" value="<%= company.billing_address %>" required>
+        </div>
+
+        <div class="section-title">Áskrift</div>
+        <label class="plan-option">
+          <input type="radio" name="subscription_plan" value="birthdays" <%= company.subscription_plan === 'birthdays' ? 'checked' : '' %>>
+          <div>
+            <div class="plan-title"><%= PLANS.birthdays.label %></div>
+            <div class="plan-desc"><%= PLANS.birthdays.description %></div>
+          </div>
+          <div class="plan-price"><%= PLANS.birthdays.pricePerEmployee %> kr./starfsmann</div>
+        </label>
+        <label class="plan-option">
+          <input type="radio" name="subscription_plan" value="birthdays_christmas" <%= company.subscription_plan === 'birthdays_christmas' ? 'checked' : '' %>>
+          <div>
+            <div class="plan-title"><%= PLANS.birthdays_christmas.label %></div>
+            <div class="plan-desc"><%= PLANS.birthdays_christmas.description %></div>
+          </div>
+          <div class="plan-price"><%= PLANS.birthdays_christmas.pricePerEmployee %> kr./starfsmann</div>
+        </label>
+
+        <button type="submit" class="btn" style="margin-top:8px;">Vista greiðsluupplýsingar</button>
+      </form>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Núverandi áskrift</h2>
+        <p style="font-size:20px; font-weight:700; color:var(--navy); margin:0 0 4px;"><%= invoice.plan.label %></p>
+        <p style="color:var(--text-muted); font-size:13px; margin:0;">
+          <%= subscription && subscription.active ? 'Virk' : 'Óvirk' %>
+        </p>
+      </div>
+      <div class="card">
+        <h2>Áætlaður mánaðarreikningur</h2>
+        <div class="invoice-line"><span><%= invoice.pricePerEmployee %> kr. &times; <%= invoice.activeEmployeeCount %> virkir starfsmenn</span><span><%= invoice.subtotal.toLocaleString('is-IS') %> kr.</span></div>
+        <div class="invoice-line"><span>Áætluð heildarfjárhæð</span><span><%= invoice.subtotal.toLocaleString('is-IS') %> kr.</span></div>
+        <p class="hint" style="margin-top:10px; font-size:12.5px; color:var(--text-muted);">
+          Beron gefur út reikninga handvirkt í hverjum mánuði. Þetta er áætlun byggð á fjölda virkra starfsmanna í dag.
+        </p>
+      </div>
+    </div>
+  </div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,85 @@
+<%- include('../partials/head', { title: 'Fjármál' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Fjármál</h1>
+      <p class="subtitle">Hvað á að rukka hvert fyrirtæki fyrir <%= monthLabel %> &mdash; gjafakostnaður, þjónustugjöld sértilefna og áskrift, hvert í sínu lagi.</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filters">
+      <a href="/superadmin/finance?year=<%= prevYear %>&month=<%= prevMonth %>">&larr; Fyrri mánuður</a>
+      <span style="padding:7px 14px; font-weight:700; color:var(--navy);"><%= monthLabel %></span>
+      <a href="/superadmin/finance?year=<%= nextYear %>&month=<%= nextMonth %>">Næsti mánuður &rarr;</a>
+      <% if (!isCurrentMonth) { %>
+        <a href="/superadmin/finance">Þessi mánuður</a>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="grid grid-4">
+    <div class="card stat-card">
+      <div class="stat-value"><%= grandGiftCostTotal.toLocaleString('is-IS') %> kr.</div>
+      <div class="stat-label">Gjafakostnaður samtals</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= grandHandlingTotal.toLocaleString('is-IS') %> kr.</div>
+      <div class="stat-label">Þjónustugjöld sértilefna samtals</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= grandSubTotal.toLocaleString('is-IS') %> kr.</div>
+      <div class="stat-label">Áskriftir samtals</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= grandTotal.toLocaleString('is-IS') %> kr.</div>
+      <div class="stat-label">Til að rukka samtals</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <% if (rows.length === 0) { %>
+      <div class="table-empty">Engin fyrirtæki.</div>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Fyrirtæki</th>
+            <th>Áskrift</th>
+            <th>Virkir starfsmenn</th>
+            <th>Gjafapantanir</th>
+            <th>Gjafakostnaður</th>
+            <th>Þjónustugjöld sértilefna</th>
+            <th>Áskriftargjald</th>
+            <th>Samtals til að rukka</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(function(r) { %>
+            <tr>
+              <td><a href="/superadmin/companies/<%= r.company.id %>"><%= r.company.name %></a></td>
+              <td><%= r.planLabel %> &middot; <%= r.pricePerEmployee.toLocaleString('is-IS') %> kr./starfsmann</td>
+              <td><%= r.activeEmployeeCount %></td>
+              <td><%= r.orderCount %></td>
+              <td><%= r.giftCostTotal.toLocaleString('is-IS') %> kr.</td>
+              <td><%= r.handlingFeeTotal > 0 ? r.handlingFeeTotal.toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td><%= r.subscriptionTotal.toLocaleString('is-IS') %> kr.</td>
+              <td><strong><%= r.grandTotal.toLocaleString('is-IS') %> kr.</strong></td>
+            </tr>
+          <% }); %>
+        </tbody>
+        <tfoot>
+          <tr style="font-weight:700;">
+            <td colspan="4">Samtals</td>
+            <td><%= grandGiftCostTotal.toLocaleString('is-IS') %> kr.</td>
+            <td><%= grandHandlingTotal.toLocaleString('is-IS') %> kr.</td>
+            <td><%= grandSubTotal.toLocaleString('is-IS') %> kr.</td>
+            <td><%= grandTotal.toLocaleString('is-IS') %> kr.</td>
+          </tr>
+        </tfoot>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

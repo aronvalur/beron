@@ -1,0 +1,76 @@
+const path = require('path');
+const express = require('express');
+const session = require('express-session');
+const methodOverride = require('method-override');
+
+const { seedIfEmpty } = require('./db/seed');
+const { formatDate, formatDayMonth } = require('./lib/format');
+const { statusLabel, eventTypeLabel, deliveryPreferenceLabel, roleLabel } = require('./lib/labels');
+
+seedIfEmpty();
+
+const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/dashboard');
+const birthdayRoutes = require('./routes/birthdays');
+const employeeRoutes = require('./routes/employees');
+const eventRoutes = require('./routes/events');
+const giftOrderRoutes = require('./routes/giftOrders');
+const billingRoutes = require('./routes/billing');
+const settingsRoutes = require('./routes/settings');
+const superadminRoutes = require('./routes/superadmin');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Available in every view without routes needing to pass them explicitly
+app.locals.formatDate = formatDate;
+app.locals.formatDayMonth = formatDayMonth;
+app.locals.statusLabel = statusLabel;
+app.locals.eventTypeLabel = eventTypeLabel;
+app.locals.deliveryPreferenceLabel = deliveryPreferenceLabel;
+app.locals.roleLabel = roleLabel;
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'beron-dev-secret-change-me',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 8 }
+  })
+);
+
+// Make current user available to every view
+app.use((req, res, next) => {
+  res.locals.currentUser = req.session.user || null;
+  res.locals.currentPath = req.path;
+  next();
+});
+
+app.use('/', authRoutes);
+app.use('/', dashboardRoutes);
+app.use('/birthdays', birthdayRoutes);
+app.use('/employees', employeeRoutes);
+app.use('/events', eventRoutes);
+app.use('/gift-orders', giftOrderRoutes);
+app.use('/billing', billingRoutes);
+app.use('/settings', settingsRoutes);
+app.use('/superadmin', superadminRoutes);
+
+app.use((req, res) => {
+  res.status(404).render('error', { message: 'Síðan fannst ekki.' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Beron keyrir á http://localhost:${PORT}`);
+  console.log('Innskráningar til að prófa:');
+  console.log('  Tengiliður fyrirtækis: sigrun@nordictech.is / beron123');
+  console.log('  Starfsmaður Beron:     admin@beron.is / beron123');
+});

@@ -1,0 +1,83 @@
+<%- include('partials/head', { title: 'Stillingar' }) %>
+<%- include('partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Stillingar</h1>
+      <p class="subtitle">Upplýsingar um fyrirtækið, tengiliði og tilkynningar.</p>
+    </div>
+  </div>
+
+  <% if (saved) { %><div class="alert alert-success">Vistað.</div><% } %>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h2>Upplýsingar um fyrirtækið</h2>
+      <form method="POST" action="/settings/company">
+        <div class="field">
+          <label for="name">Nafn fyrirtækis</label>
+          <input type="text" id="name" name="name" value="<%= company.name %>" required>
+        </div>
+        <button type="submit" class="btn">Vista</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Tilkynningar</h2>
+      <form method="POST" action="/settings/notifications">
+        <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px;">
+          <input type="checkbox" name="email_notifications" <%= company.email_notifications ? 'checked' : '' %> style="margin-top:3px;">
+          <span>Senda starfsmannastjóra tölvupóst þegar tilefni nálgast
+            <br><span class="hint" style="color:var(--text-muted); font-size:12.5px;">Tölvupóstsending er ekki tengd ennþá í þessari fyrstu útgáfu &mdash; þessi stilling er vistuð fyrir þann tíma.</span>
+          </span>
+        </label>
+        <button type="submit" class="btn" style="margin-top:16px;">Vista</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Tengiliðir (<%= admins.length %> / <%= maxAdmins %>)</h2>
+    <table>
+      <thead><tr><th>Nafn</th><th>Netfang</th><th></th></tr></thead>
+      <tbody>
+        <% admins.forEach(function(a) { %>
+          <tr>
+            <td><%= a.name %></td>
+            <td><%= a.email %></td>
+            <td>
+              <% if (admins.length > 1) { %>
+                <form class="inline" method="POST" action="/settings/admins/<%= a.id %>/remove" onsubmit="return confirm('Fjarlægja þennan tengilið?');">
+                  <button class="btn btn-sm btn-danger" type="submit">Fjarlægja</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+
+    <% if (admins.length < maxAdmins) { %>
+      <div class="section-title">Bæta við tengilið</div>
+      <form method="POST" action="/settings/admins" style="max-width:420px;">
+        <div class="field">
+          <label for="admin_name">Nafn</label>
+          <input type="text" id="admin_name" name="name" required>
+        </div>
+        <div class="field">
+          <label for="admin_email">Netfang</label>
+          <input type="email" id="admin_email" name="email" required>
+        </div>
+        <div class="field">
+          <label for="admin_password">Bráðabirgðalykilorð</label>
+          <input type="text" id="admin_password" name="password" placeholder="beron123 (sjálfgefið ef autt)">
+        </div>
+        <button type="submit" class="btn">Bæta við tengilið</button>
+      </form>
+    <% } else { %>
+      <p class="hint" style="color:var(--text-muted); font-size:13px;">Hámarksfjölda tengiliða (<%= maxAdmins %>) er náð.</p>
+    <% } %>
+  </div>
+
+<%- include('partials/footer') %>

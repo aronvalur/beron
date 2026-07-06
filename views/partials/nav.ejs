@@ -1,0 +1,36 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/images/logo.svg" alt="Beron" class="brand-mark-img">
+      <span class="brand-name">Beron</span>
+    </div>
+    <% if (currentUser && currentUser.role === 'admin') { %>
+      <nav class="nav">
+        <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Yfirlit</a>
+        <a href="/birthdays" class="<%= currentPath.startsWith('/birthdays') ? 'active' : '' %>">Afmæli</a>
+        <a href="/employees" class="<%= currentPath.startsWith('/employees') ? 'active' : '' %>">Starfsmenn</a>
+        <a href="/events" class="<%= currentPath.startsWith('/events') ? 'active' : '' %>">Tilefni</a>
+        <a href="/gift-orders" class="<%= currentPath.startsWith('/gift-orders') ? 'active' : '' %>">Gjafapantanir</a>
+        <a href="/billing" class="<%= currentPath.startsWith('/billing') ? 'active' : '' %>">Áskrift og greiðslur</a>
+        <a href="/settings" class="<%= currentPath.startsWith('/settings') ? 'active' : '' %>">Stillingar</a>
+      </nav>
+    <% } else if (currentUser && currentUser.role === 'superadmin') { %>
+      <nav class="nav">
+        <a href="/superadmin" class="<%= currentPath === '/superadmin' ? 'active' : '' %>">Yfirlit</a>
+        <a href="/superadmin/companies" class="<%= currentPath.startsWith('/superadmin/companies') ? 'active' : '' %>">Fyrirtæki</a>
+        <a href="/superadmin/orders" class="<%= currentPath.startsWith('/superadmin/orders') ? 'active' : '' %>">Gjafapantanir</a>
+        <a href="/superadmin/finance" class="<%= currentPath.startsWith('/superadmin/finance') ? 'active' : '' %>">Fjármál</a>
+      </nav>
+    <% } %>
+    <% if (currentUser) { %>
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <div class="user-name"><%= currentUser.name %></div>
+          <div class="user-role"><%= roleLabel(currentUser.role) %></div>
+        </div>
+        <a href="/logout" class="logout-link">Skrá út</a>
+      </div>
+    <% } %>
+  </aside>
+  <div class="main-col">
+    <main class="content">

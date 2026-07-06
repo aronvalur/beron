@@ -1,0 +1,50 @@
+<%- include('../partials/head', { title: 'Starfsmenn' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Starfsmenn</h1>
+      <p class="subtitle"><%= employees.length %> samtals</p>
+    </div>
+    <a href="/employees/new" class="btn">+ Bæta við starfsmanni</a>
+  </div>
+
+  <div class="card">
+    <% if (employees.length === 0) { %>
+      <div class="empty-state">
+        <h3>Engir starfsmenn ennþá</h3>
+        <p>Bættu starfsfólkinu þínu við svo Beron geti byrjað að fylgjast með afmælum og tilefnum.</p>
+      </div>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr><th>Nafn</th><th>Afmæli</th><th>Deild</th><th>Gjafafjárhæð</th><th>Afhending</th><th>Staða</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% employees.forEach(function(e) { %>
+            <tr>
+              <td><%= e.name %></td>
+              <td><%= formatDayMonth(e.birthday) %></td>
+              <td><%= e.department || '—' %></td>
+              <td><%= e.birthday_budget ? Number(e.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td><%= deliveryPreferenceLabel(e.delivery_preference) %></td>
+              <td><span class="badge badge-<%= e.active ? 'active' : 'inactive' %>"><%= e.active ? 'Virkur' : 'Óvirkur' %></span></td>
+              <td>
+                <div class="btn-row">
+                  <a class="btn btn-sm btn-secondary" href="/employees/<%= e.id %>/edit">Breyta</a>
+                  <form class="inline" method="POST" action="/employees/<%= e.id %>/toggle-active">
+                    <button class="btn btn-sm btn-secondary" type="submit"><%= e.active ? 'Gera óvirkan' : 'Virkja' %></button>
+                  </form>
+                  <form class="inline" method="POST" action="/employees/<%= e.id %>?_method=DELETE" onsubmit="return confirm('Eyða þessum starfsmanni?');">
+                    <button class="btn btn-sm btn-danger" type="submit">Eyða</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

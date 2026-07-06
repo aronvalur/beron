@@ -1,0 +1,78 @@
+<%- include('../partials/head', { title: 'Gjafapantanir' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Gjafapantanir</h1>
+      <p class="subtitle">Allar pantanir, öll fyrirtæki, í tímaröð.</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filters">
+      <a href="/superadmin/orders?range=today&status=<%= status %>" class="<%= range === 'today' ? 'active' : '' %>">Í dag</a>
+      <a href="/superadmin/orders?range=week&status=<%= status %>" class="<%= range === 'week' ? 'active' : '' %>">Þessa viku</a>
+      <a href="/superadmin/orders?range=month&status=<%= status %>" class="<%= range === 'month' ? 'active' : '' %>">Þennan mánuð</a>
+      <a href="/superadmin/orders?range=all&status=<%= status %>" class="<%= range === 'all' ? 'active' : '' %>">Allar</a>
+    </div>
+    <form method="GET" action="/superadmin/orders" class="status-filter">
+      <input type="hidden" name="range" value="<%= range %>">
+      <select name="status" onchange="this.form.submit()">
+        <option value="all" <%= status === 'all' ? 'selected' : '' %>>Öll staða</option>
+        <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Í bið</option>
+        <option value="ordered" <%= status === 'ordered' ? 'selected' : '' %>>Pantað</option>
+        <option value="shipped" <%= status === 'shipped' ? 'selected' : '' %>>Sent í dreifingu</option>
+        <option value="delivered" <%= status === 'delivered' ? 'selected' : '' %>>Afhent</option>
+        <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Hætt við</option>
+      </select>
+    </form>
+  </div>
+
+  <div class="card">
+    <% if (orders.length === 0) { %>
+      <div class="table-empty">Ekkert að sjá hér.</div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Niðurtalning</th><th>Dagsetning</th><th>Fyrirtæki</th><th>Starfsmaður</th><th>Tilefni</th><th>Fjárhæð</th><th>Þjónustugjald</th><th>Athugasemd frá tengilið</th><th>Staða</th></tr></thead>
+        <tbody>
+          <% orders.forEach(function(o) { %>
+            <tr>
+              <td>
+                <% if (o.daysAway === null) { %>
+                  <span style="color:var(--text-muted);">—</span>
+                <% } else if (o.daysAway < 0 && o.status !== 'delivered' && o.status !== 'cancelled') { %>
+                  <strong style="color:var(--danger);"><%= Math.abs(o.daysAway) %> daga liðnir</strong>
+                <% } else if (o.daysAway === 0) { %>
+                  <strong>Í dag</strong>
+                <% } else if (o.daysAway > 0) { %>
+                  <strong><%= o.daysAway %> dagar</strong>
+                <% } else { %>
+                  <span style="color:var(--text-muted);"><%= Math.abs(o.daysAway) %> dagar síðan</span>
+                <% } %>
+              </td>
+              <td><%= o.date ? formatDate(o.date) : '—' %></td>
+              <td><%= o.company ? o.company.name : '—' %></td>
+              <td><%= o.employee ? o.employee.name : '—' %></td>
+              <td><span class="badge badge-<%= o.gift_type %>"><%= o.occasion || eventTypeLabel(o.gift_type) %></span></td>
+              <td><%= o.budget_amount ? Number(o.budget_amount).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td><%= o.handling_fee ? Number(o.handling_fee).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td style="max-width:200px; color:var(--text-muted); font-size:13px;"><%= o.notes || '—' %></td>
+              <td>
+                <form class="inline" method="POST" action="/superadmin/orders/<%= o.id %>/status">
+                  <select name="status" onchange="this.form.submit()">
+                    <option value="pending" <%= o.status === 'pending' ? 'selected' : '' %>>Í bið</option>
+                    <option value="ordered" <%= o.status === 'ordered' ? 'selected' : '' %>>Pantað</option>
+                    <option value="shipped" <%= o.status === 'shipped' ? 'selected' : '' %>>Sent í dreifingu</option>
+                    <option value="delivered" <%= o.status === 'delivered' ? 'selected' : '' %>>Afhent</option>
+                    <option value="cancelled" <%= o.status === 'cancelled' ? 'selected' : '' %>>Hætt við</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

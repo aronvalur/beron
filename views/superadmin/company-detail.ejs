@@ -1,0 +1,68 @@
+<%- include('../partials/head', { title: company.name }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1><%= company.name %></h1>
+      <p class="subtitle">Kennitala <%= company.kennitala %> &middot; <%= company.billing_email %></p>
+    </div>
+    <form method="POST" action="/superadmin/companies/<%= company.id %>/subscription">
+      <button type="submit" class="btn <%= subscription && subscription.active ? 'btn-danger' : '' %>">
+        <%= subscription && subscription.active ? 'Gera áskrift óvirka' : 'Virkja áskrift' %>
+      </button>
+    </form>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card stat-card">
+      <div class="stat-value"><%= employees.length %></div>
+      <div class="stat-label">Starfsmenn</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= orders.length %></div>
+      <div class="stat-label">Gjafapantanir samtals</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= plan ? plan.label : '—' %></div>
+      <div class="stat-label">Áskrift</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Starfsmenn</h2>
+    <table>
+      <thead><tr><th>Nafn</th><th>Afmæli</th><th>Deild</th><th>Staða</th></tr></thead>
+      <tbody>
+        <% employees.forEach(function(e) { %>
+          <tr>
+            <td><%= e.name %></td>
+            <td><%= formatDayMonth(e.birthday) %></td>
+            <td><%= e.department || '—' %></td>
+            <td><span class="badge badge-<%= e.active ? 'active' : 'inactive' %>"><%= e.active ? 'Virkur' : 'Óvirkur' %></span></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Gjafapantanir</h2>
+    <% if (orders.length === 0) { %>
+      <div class="table-empty">Engar gjafapantanir ennþá.</div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Staða</th></tr></thead>
+        <tbody>
+          <% orders.forEach(function(o) { %>
+            <tr>
+              <td><%= (employees.find(e => e.id === o.employee_id) || {}).name || '—' %></td>
+              <td><span class="badge badge-<%= o.gift_type %>"><%= o.occasion || eventTypeLabel(o.gift_type) %></span></td>
+              <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

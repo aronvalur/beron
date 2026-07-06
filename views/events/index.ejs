@@ -1,0 +1,55 @@
+<%- include('../partials/head', { title: 'Tilefni' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Tilefni</h1>
+      <p class="subtitle">Beron sér sjálfkrafa um afmæli og jólagjafir. Sértilefni eru stofnuð á Gjafapantanir-síðunni.</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <a href="/events" class="<%= filter === 'all' ? 'active' : '' %>">Allt</a>
+    <a href="/events?type=birthday" class="<%= filter === 'birthday' ? 'active' : '' %>">Afmæli</a>
+    <a href="/events?type=christmas" class="<%= filter === 'christmas' ? 'active' : '' %>">Jól</a>
+    <a href="/events?type=custom" class="<%= filter === 'custom' ? 'active' : '' %>">Sértilefni</a>
+  </div>
+
+  <div class="card">
+    <% if (events.length === 0) { %>
+      <div class="empty-state">
+        <h3>Ekkert að sjá hér</h3>
+        <p>Tilefni verða til sjálfkrafa eftir því sem afmæli og jólagjafir nálgast.</p>
+      </div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Staða</th><th>Gjafapöntun</th><th></th></tr></thead>
+        <tbody>
+          <% events.forEach(function(e) { %>
+            <tr>
+              <td><%= e.employee ? e.employee.name : (e.custom_label || '—') %></td>
+              <td><span class="badge badge-<%= e.event_type %>"><%= eventTypeLabel(e.event_type) %></span></td>
+              <td><%= formatDate(e.date) %></td>
+              <td><span class="badge badge-<%= e.status %>"><%= statusLabel(e.status) %></span></td>
+              <td>
+                <% if (e.order) { %>
+                  <span class="badge badge-<%= e.order.status %>"><%= statusLabel(e.order.status) %></span>
+                <% } else { %>
+                  <span style="font-size:12.5px; color:var(--text-muted);">—</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (e.status === 'upcoming' && (e.event_type === 'birthday' || e.event_type === 'christmas')) { %>
+                  <form class="inline" method="POST" action="/events/<%= e.id %>/skip" onsubmit="return confirm('Sleppa gjöf fyrir þetta tilefni? Öllum ókláruðum pöntunum verður hætt.');">
+                    <button class="btn btn-sm btn-secondary" type="submit">Sleppa</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

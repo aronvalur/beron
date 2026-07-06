@@ -1,0 +1,101 @@
+<%- include('partials/head', { title: 'Yfirlit' }) %>
+<%- include('partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1><%= company.name %></h1>
+      <p class="subtitle">Hér er það sem er framundan hjá starfsfólkinu þínu.</p>
+    </div>
+    <a href="/gift-orders/custom/new" class="btn">+ Ný sértilefnisgjöf</a>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card stat-card">
+      <div class="stat-value"><%= upcomingEvents.length %></div>
+      <div class="stat-label">Afmæli og jólagjafir næstu 30 daga</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= christmasCountdown !== null ? christmasCountdown + ' dagar' : '—' %></div>
+      <div class="stat-label"><%= christmasCountdown !== null ? 'Þar til jólagjafir (24. des.)' : 'Jólagjafir ekki innifaldar í áskrift' %></div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= invoice.formatted || (invoice.subtotal.toLocaleString('is-IS') + ' kr.') %></div>
+      <div class="stat-label">Áætlaður mánaðarreikningur (<%= invoice.activeEmployeeCount %> starfsmenn)</div>
+    </div>
+  </div>
+
+  <% if (missingBudgetCount > 0) { %>
+    <div class="alert alert-info">
+      <%= missingBudgetCount %> virkur starfsmaður <%= missingBudgetCount === 1 ? 'er' : 'eru' %> ekki með skráða gjafafjárhæð.
+      <a href="/employees">Bættu því við á starfsmannasíðunni</a> svo Beron viti hversu miklu má eyða í afmælisgjöf.
+    </div>
+  <% } %>
+
+  <div class="card">
+    <h2>Væntanleg tilefni (næstu 30 daga)</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin:-8px 0 14px;">
+      Afmæli og jólagjafir, í tímaröð. Beron útbýr og sendir þessar gjafapantanir sjálfkrafa —
+      þú þarft ekkert að gera hér nema <a href="/birthdays">skoða allt afmælisyfirlitið</a> eða
+      <a href="/events">sleppa tilefni</a>.
+    </p>
+    <% if (upcomingEvents.length === 0) { %>
+      <div class="table-empty">Ekkert framundan næstu 30 daga.</div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Niðurtalning</th><th>Fjárhæð</th><th>Staða pöntunar</th><th>Athugasemd til Beron</th></tr></thead>
+        <tbody>
+          <% upcomingEvents.forEach(function(ev) { %>
+            <tr>
+              <td><%= ev.employee ? ev.employee.name : 'Óþekkt' %></td>
+              <td><span class="badge badge-<%= ev.event_type %>"><%= eventTypeLabel(ev.event_type) %></span></td>
+              <td><%= formatDate(ev.date) %></td>
+              <td><strong><%= ev.daysAway === 0 ? 'Í dag' : (ev.daysAway === 1 ? 'Á morgun' : ev.daysAway + ' dagar') %></strong></td>
+              <td><%= ev.employee && ev.employee.birthday_budget ? Number(ev.employee.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td>
+                <% if (ev.order) { %>
+                  <span class="badge badge-<%= ev.order.status %>"><%= statusLabel(ev.order.status) %></span>
+                <% } else { %>
+                  <span style="font-size:12.5px; color:var(--text-muted);">—</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (ev.order) { %>
+                  <form class="inline note-form" method="POST" action="/gift-orders/<%= ev.order.id %>/note">
+                    <input type="hidden" name="redirect_to" value="/">
+                    <input type="text" name="notes" value="<%= ev.order.notes || '' %>" placeholder="t.d. elskar dökkt súkkulaði">
+                    <button type="submit" class="btn btn-sm btn-secondary">Vista</button>
+                  </form>
+                <% } else { %>
+                  <span style="font-size:12.5px; color:var(--text-muted);">—</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h2>Nýlegar gjafapantanir</h2>
+    <% if (recentOrders.length === 0) { %>
+      <div class="table-empty">Engar gjafapantanir enn.</div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Staða</th><th>Skráð</th></tr></thead>
+        <tbody>
+          <% recentOrders.forEach(function(o) { %>
+            <tr>
+              <td><%= o.employee ? o.employee.name : '—' %></td>
+              <td><span class="badge badge-<%= o.gift_type %>"><%= o.occasion || eventTypeLabel(o.gift_type) %></span></td>
+              <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
+              <td><%= formatDate(o.created_at) %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+    <p style="margin-top:14px;"><a href="/gift-orders">Sjá allar gjafapantanir &rarr;</a></p>
+  </div>
+
+<%- include('partials/footer') %>

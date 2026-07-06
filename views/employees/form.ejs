@@ -1,0 +1,65 @@
+<%- include('../partials/head', { title: employee ? 'Breyta starfsmanni' : 'Bæta við starfsmanni' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1><%= employee ? 'Breyta starfsmanni' : 'Bæta við starfsmanni' %></h1>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:640px;">
+    <form method="POST" action="<%= employee ? '/employees/' + employee.id + '?_method=PUT' : '/employees' %>">
+      <div class="field">
+        <label for="name">Fullt nafn</label>
+        <input type="text" id="name" name="name" required value="<%= employee ? employee.name : '' %>">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="birthday">Afmælisdagur</label>
+          <input type="date" id="birthday" name="birthday" required value="<%= employee ? employee.birthday : '' %>">
+        </div>
+        <div class="field">
+          <label for="department">Deild (valfrjálst)</label>
+          <input type="text" id="department" name="department" value="<%= employee ? employee.department : '' %>">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="birthday_budget">Fjárhæð afmælisgjafar (kr.)</label>
+          <input type="number" id="birthday_budget" name="birthday_budget" min="0" step="500" placeholder="t.d. 10000" value="<%= employee && employee.birthday_budget ? employee.birthday_budget : '' %>">
+          <div class="hint">Notað til að fylla sjálfkrafa út fjárhæðina þegar gjafapöntun er stofnuð fyrir afmæli þessa starfsmanns.</div>
+        </div>
+        <div class="field">
+          <label for="delivery_preference">Afhendingarmáti</label>
+          <select id="delivery_preference" name="delivery_preference">
+            <option value="to_employee" <%= employee && employee.delivery_preference === 'to_employee' ? 'selected' : '' %>>Heim til starfsmanns</option>
+            <option value="to_hr_office" <%= employee && employee.delivery_preference === 'to_hr_office' ? 'selected' : '' %>>Á skrifstofu starfsmannamála</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="address">Heimilisfang (valfrjálst)</label>
+        <input type="text" id="address" name="address" value="<%= employee ? employee.address : '' %>">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="preferences">Áhugamál (valfrjálst)</label>
+          <input type="text" id="preferences" name="preferences" placeholder="t.d. kaffi, gönguferðir, vín" value="<%= employee ? employee.preferences : '' %>">
+        </div>
+        <div class="field">
+          <label for="shirt_size">Fatastærð (valfrjálst)</label>
+          <input type="text" id="shirt_size" name="shirt_size" placeholder="t.d. M" value="<%= employee ? employee.shirt_size : '' %>">
+        </div>
+      </div>
+      <div class="field">
+        <label for="notes">Athugasemdir starfsmannastjóra (valfrjálst, aðeins til innanhússnota)</label>
+        <textarea id="notes" name="notes"><%= employee ? employee.notes : '' %></textarea>
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn"><%= employee ? 'Vista breytingar' : 'Bæta við starfsmanni' %></button>
+        <a href="/employees" class="btn btn-secondary">Hætta við</a>
+      </div>
+    </form>
+  </div>
+
+<%- include('../partials/footer') %>

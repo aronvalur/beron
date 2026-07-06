@@ -1,0 +1,38 @@
+<%- include('../partials/head', { title: 'Gjafapantanir' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Gjafapantanir</h1>
+      <p class="subtitle">Aðeins til skoðunar — starfsfólk Beron uppfærir stöðuna eftir því sem gjöfin er pöntuð og afhent.</p>
+    </div>
+    <a href="/gift-orders/custom/new" class="btn">+ Ný sértilefnisgjöf</a>
+  </div>
+
+  <div class="card">
+    <% if (orders.length === 0) { %>
+      <div class="empty-state">
+        <h3>Engar gjafapantanir ennþá</h3>
+        <p>Afmælis- og jólapantanir birtast hér sjálfkrafa. Notaðu „Ný sértilefnisgjöf" fyrir stöðuhækkanir, nýja starfsmenn og önnur sérstök tilefni.</p>
+      </div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Fjárhæð</th><th>Þjónustugjald</th><th>Staða</th><th>Athugasemdir</th></tr></thead>
+        <tbody>
+          <% orders.forEach(function(o) { %>
+            <tr>
+              <td><%= o.employee ? o.employee.name : '—' %></td>
+              <td><span class="badge badge-<%= o.gift_type %>"><%= o.occasion || eventTypeLabel(o.gift_type) %></span></td>
+              <td><%= o.event ? formatDate(o.event.date) : '—' %></td>
+              <td><%= o.budget_amount ? Number(o.budget_amount).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td><%= o.handling_fee ? Number(o.handling_fee).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
+              <td style="max-width:180px; color:var(--text-muted); font-size:13px;"><%= o.notes || '—' %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

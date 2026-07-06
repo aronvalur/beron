@@ -1,0 +1,29 @@
+<%- include('../partials/head', { title: 'Fyrirtæki' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Fyrirtæki</h1>
+      <p class="subtitle"><%= stats.length %> samtals</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead><tr><th>Fyrirtæki</th><th>Kennitala</th><th>Áskrift</th><th>Starfsmenn</th><th>Staða áskriftar</th><th></th></tr></thead>
+      <tbody>
+        <% stats.forEach(function(s) { %>
+          <tr>
+            <td><%= s.company.name %></td>
+            <td><%= s.company.kennitala %></td>
+            <td><%= s.invoice.plan.label %></td>
+            <td><%= s.activeEmployeeCount %> virkir / <%= s.employeeCount %> samtals</td>
+            <td><span class="badge badge-<%= s.subscription && s.subscription.active ? 'active' : 'inactive' %>"><%= s.subscription && s.subscription.active ? 'Virk' : 'Óvirk' %></span></td>
+            <td><a href="/superadmin/companies/<%= s.company.id %>" class="btn btn-sm btn-secondary">Skoða</a></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+<%- include('../partials/footer') %>

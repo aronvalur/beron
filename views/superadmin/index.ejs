@@ -1,0 +1,44 @@
+<%- include('../partials/head', { title: 'Yfirlit Beron' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Yfirlit Beron</h1>
+      <p class="subtitle">Yfir öll fyrirtæki.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card stat-card">
+      <div class="stat-value"><%= companyCount %></div>
+      <div class="stat-label">Fyrirtæki</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= totalActiveEmployees %></div>
+      <div class="stat-label">Virkir starfsmenn</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value"><%= pendingOrderCount %></div>
+      <div class="stat-label">Gjafapantanir sem bíða afgreiðslu</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fyrirtæki</h2>
+    <table>
+      <thead><tr><th>Fyrirtæki</th><th>Áskrift</th><th>Virkir starfsmenn</th><th>Ókláraðar pantanir</th><th></th></tr></thead>
+      <tbody>
+        <% stats.forEach(function(s) { %>
+          <tr>
+            <td><%= s.company.name %></td>
+            <td><%= s.invoice.plan.label %></td>
+            <td><%= s.activeEmployeeCount %></td>
+            <td><%= s.pendingOrderCount %></td>
+            <td><a href="/superadmin/companies/<%= s.company.id %>" class="btn btn-sm btn-secondary">Skoða</a></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+<%- include('../partials/footer') %>
