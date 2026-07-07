@@ -19,8 +19,11 @@
       <div class="stat-label"><%= christmasCountdown !== null ? 'Þar til jólagjafir (24. des.)' : 'Jólagjafir ekki innifaldar í áskrift' %></div>
     </div>
     <div class="card stat-card">
-      <div class="stat-value"><%= invoice.formatted || (invoice.subtotal.toLocaleString('is-IS') + ' kr.') %></div>
-      <div class="stat-label">Áætlaður mánaðarreikningur (<%= invoice.activeEmployeeCount %> starfsmenn)</div>
+      <div class="stat-value"><%= monthBilling.grandTotal.toLocaleString('is-IS') %> kr.</div>
+      <div class="stat-label">Áætlaður mánaðarreikningur (<%= monthBilling.activeEmployeeCount %> starfsmenn)</div>
+      <div style="font-size:12px; color:var(--text-muted); font-weight:600; margin-top:4px;">
+        <%= monthBilling.subscriptionTotal.toLocaleString('is-IS') %> kr. áskrift + <%= monthBilling.giftChargeTotal.toLocaleString('is-IS') %> kr. gjafir
+      </div>
     </div>
   </div>
 

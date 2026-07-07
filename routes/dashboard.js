@@ -3,6 +3,7 @@ const store = require('../db/store');
 const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
 const { runDailyWorkflows, upcomingEventsForCompany, daysBetween } = require('../lib/events');
 const { computeInvoice } = require('../lib/pricing');
+const { billingForCompanyMonth } = require('../lib/billing');
 
 const router = express.Router();
 
@@ -42,6 +43,7 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     .map((o) => Object.assign({}, o, { employee: o.employee_id ? store.find('employees', o.employee_id) : null }));
 
   const invoice = computeInvoice(company.subscription_plan, activeEmployees.length);
+  const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());
 
   const christmasCountdown = (() => {
     if (company.subscription_plan !== 'birthdays_christmas') return null;
@@ -60,7 +62,8 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     upcomingChristmas,
     christmasCountdown,
     recentOrders,
-    invoice
+    invoice,
+    monthBilling
   });
 });
 
