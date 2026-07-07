@@ -23,7 +23,7 @@
 
 body {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 15px;
@@ -33,7 +33,7 @@ body {
 }
 
 h1, h2, h3, .display-font {
-  font-family: 'Space Grotesk', 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-family: 'Sora', 'Manrope', -apple-system, sans-serif;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -84,7 +84,7 @@ a:hover { text-decoration: underline; }
 }
 
 .brand-name {
-  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', 'Manrope', sans-serif;
   font-size: 19px; font-weight: 700; letter-spacing: -0.02em;
 }
 
@@ -106,7 +106,7 @@ a:hover { text-decoration: underline; }
   margin-top: 16px;
 }
 .user-chip .user-name { font-weight: 700; font-size: 14px; }
-.user-chip .user-role { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+.user-chip .user-role { font-size: 12.5px; font-weight: 700; color: rgba(255,255,255,0.72); margin-bottom: 8px; }
 .logout-link { font-size: 13px; color: rgba(255,255,255,0.7); }
 .logout-link:hover { color: #fff; }
 
@@ -139,7 +139,7 @@ a:hover { text-decoration: underline; }
 
 .stat-card { text-align: left; }
 .stat-value {
-  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Sora', 'Manrope', sans-serif;
   font-size: 29px; font-weight: 700; color: var(--navy);
   letter-spacing: -0.01em; font-variant-numeric: tabular-nums;
 }
@@ -148,13 +148,13 @@ a:hover { text-decoration: underline; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
 td { font-weight: 500; }
-th { color: var(--text-muted); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+th { color: var(--text-muted); font-weight: 800; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; }
 tr:last-child td { border-bottom: none; }
 .table-empty { color: var(--text-muted); padding: 20px 0; text-align: center; }
 
 .badge {
-  display: inline-block; padding: 3px 10px; border-radius: 100px;
-  font-size: 12px; font-weight: 700;
+  display: inline-block; padding: 4px 11px; border-radius: 100px;
+  font-size: 12.5px; font-weight: 800;
 }
 .badge-upcoming { background: var(--info-bg); color: var(--info); }
 .badge-processed { background: var(--success-bg); color: var(--success); }
@@ -224,7 +224,7 @@ form.inline { display: inline; }
   font-size: 14px; font-family: inherit; background: #fff;
 }
 .field textarea { resize: vertical; min-height: 70px; }
-.field .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.field .hint { font-size: 12.5px; font-weight: 600; color: var(--text-muted); margin-top: 4px; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 700px) { .field-row { grid-template-columns: 1fr; } }
 
@@ -253,7 +253,7 @@ form.inline { display: inline; }
 .plan-option .plan-title { font-weight: 700; }
 .plan-option .plan-desc { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
 .plan-option .plan-price {
-  margin-left: auto; font-family: 'Space Grotesk', sans-serif;
+  margin-left: auto; font-family: 'Sora', sans-serif;
   font-weight: 700; color: var(--navy); white-space: nowrap;
 }
 
