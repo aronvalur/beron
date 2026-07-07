@@ -13,6 +13,13 @@
     </form>
   </div>
 
+  <% if (justCreated && newPassword) { %>
+    <div class="alert alert-success">
+      Fyrirtækið er stofnað. Innskráning fyrsta tengiliðar: <strong><%= admins[0] ? admins[0].email : '' %></strong> / <strong><%= newPassword %></strong><br>
+      <span style="font-weight:500;">Þetta lykilorð birtist bara núna - sendu það á viðskiptavininn, þau geta breytt því sjálf undir Stillingar eftir innskráningu.</span>
+    </div>
+  <% } %>
+
   <div class="grid grid-3">
     <div class="card stat-card">
       <div class="stat-value"><%= employees.length %></div>
@@ -26,6 +33,21 @@
       <div class="stat-value"><%= plan ? plan.label : '—' %></div>
       <div class="stat-label">Áskrift</div>
     </div>
+  </div>
+
+  <div class="card">
+    <h2>Tengiliðir</h2>
+    <table>
+      <thead><tr><th>Nafn</th><th>Netfang</th></tr></thead>
+      <tbody>
+        <% admins.forEach(function(a) { %>
+          <tr>
+            <td><%= a.name %></td>
+            <td><%= a.email %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
   </div>
 
   <div class="card">

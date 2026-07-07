@@ -58,6 +58,30 @@ router.post('/admins', (req, res) => {
   res.redirect('/settings?saved=1');
 });
 
+// Lets the logged-in contact replace whatever password Beron HQ gave them
+// (or anyone else) with one of their own choosing. Requires the current
+// password so a shared/unlocked computer can't silently lock others out.
+router.post('/password', (req, res) => {
+  const userId = req.session.user.id;
+  const user = store.find('users', userId);
+  const currentPassword = req.body.current_password || '';
+  const newPassword = req.body.new_password || '';
+  const confirmPassword = req.body.confirm_password || '';
+
+  if (!bcrypt.compareSync(currentPassword, user.password_hash)) {
+    return res.redirect('/settings?error=' + encodeURIComponent('Núverandi lykilorð er rangt.'));
+  }
+  if (newPassword.length < 6) {
+    return res.redirect('/settings?error=' + encodeURIComponent('Nýja lykilorðið þarf að vera minnst 6 stafir.'));
+  }
+  if (newPassword !== confirmPassword) {
+    return res.redirect('/settings?error=' + encodeURIComponent('Nýju lykilorðin eru ekki eins.'));
+  }
+
+  store.update('users', userId, { password_hash: bcrypt.hashSync(newPassword, 10) });
+  res.redirect('/settings?saved=1');
+});
+
 router.post('/admins/:id/remove', (req, res) => {
   const companyId = req.session.user.company_id;
   const target = store.find('users', req.params.id);

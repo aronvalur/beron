@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const store = require('../db/store');
 const { requireLogin, requireSuperAdmin } = require('../middleware/auth');
 const { runDailyWorkflows, upcomingEventsForCompany, daysBetween } = require('../lib/events');
@@ -46,14 +47,91 @@ router.get('/companies', (req, res) => {
   res.render('superadmin/companies', { stats: companiesWithStats() });
 });
 
+// Onboarding a brand-new customer: creates the company, its subscription,
+// and its first contact login in one go. Beron HQ sets an easy temporary
+// password here (defaults to beron123) - it's shown once on the next page
+// so it can be relayed to the customer, who can then change it themselves
+// under Stillingar once they log in.
+router.get('/companies/new', (req, res) => {
+  res.render('superadmin/company-new', { PLANS, error: req.query.error, formValues: {} });
+});
+
+router.post('/companies', (req, res) => {
+  const b = req.body;
+  const name = (b.name || '').trim();
+  const kennitala = (b.kennitala || '').trim();
+  const billingEmail = (b.billing_email || '').trim();
+  const billingAddress = (b.billing_address || '').trim();
+  const plan = PLANS[b.subscription_plan] ? b.subscription_plan : 'birthdays';
+  const contactName = (b.contact_name || '').trim();
+  const contactEmail = (b.contact_email || '').trim();
+  const password = (b.password || '').trim() || 'beron123';
+
+  if (!name || !contactName || !contactEmail) {
+    return res.status(400).render('superadmin/company-new', {
+      PLANS,
+      error: 'Nafn fyrirtækis, nafn tengiliðar og netfang tengiliðar eru nauðsynleg.',
+      formValues: { name, kennitala, billing_email: billingEmail, billing_address: billingAddress, subscription_plan: plan, contact_name: contactName, contact_email: contactEmail }
+    });
+  }
+
+  const emailTaken = store.where('users', (u) => u.email.toLowerCase() === contactEmail.toLowerCase());
+  if (emailTaken.length > 0) {
+    return res.status(400).render('superadmin/company-new', {
+      PLANS,
+      error: 'Þetta netfang er þegar í notkun.',
+      formValues: { name, kennitala, billing_email: billingEmail, billing_address: billingAddress, subscription_plan: plan, contact_name: contactName, contact_email: contactEmail }
+    });
+  }
+
+  const company = store.insert('companies', {
+    name,
+    kennitala,
+    subscription_plan: plan,
+    billing_email: billingEmail,
+    billing_address: billingAddress,
+    active_admin_count: 1,
+    email_notifications: false
+  });
+
+  store.insert('subscriptions', {
+    company_id: company.id,
+    plan_type: plan,
+    pricing_model: 'per_employee',
+    price_per_employee: PLANS[plan].pricePerEmployee,
+    monthly_fee: null,
+    active: true
+  });
+
+  store.insert('users', {
+    name: contactName,
+    email: contactEmail,
+    password_hash: bcrypt.hashSync(password, 10),
+    role: 'admin',
+    company_id: company.id
+  });
+
+  res.redirect(`/superadmin/companies/${company.id}?created=1&pwd=${encodeURIComponent(password)}`);
+});
+
 router.get('/companies/:id', (req, res) => {
   const company = store.find('companies', req.params.id);
   if (!company) return res.status(404).render('error', { message: 'Fyrirtæki fannst ekki.' });
   const employees = store.where('employees', (e) => e.company_id === company.id);
   const orders = store.where('giftOrders', (o) => o.company_id === company.id);
+  const admins = store.where('users', (u) => u.company_id === company.id && u.role === 'admin');
   const subscription = store.where('subscriptions', (s) => s.company_id === company.id)[0];
   const plan = PLANS[company.subscription_plan] || null;
-  res.render('superadmin/company-detail', { company, employees, orders, subscription, plan });
+  res.render('superadmin/company-detail', {
+    company,
+    employees,
+    orders,
+    admins,
+    subscription,
+    plan,
+    justCreated: req.query.created === '1',
+    newPassword: req.query.pwd || null
+  });
 });
 
 router.post('/companies/:id/subscription', (req, res) => {
