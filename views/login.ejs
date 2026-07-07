@@ -12,10 +12,10 @@
 <body>
   <div class="login-wrap">
     <div class="login-card">
-      <div class="brand">
+      <a href="/" class="brand" style="text-decoration:none;">
         <img src="/images/logo.png" alt="Beron" class="brand-mark-img">
         <span class="brand-name" style="color:var(--navy);">Beron</span>
-      </div>
+      </a>
       <h1>Skráðu þig inn á vinnusvæðið þitt</h1>
 
       <% if (error) { %>
@@ -34,6 +34,7 @@
         <button type="submit" class="btn" style="width:100%;">Skrá inn</button>
       </form>
       <p style="text-align:center; margin-top:14px;"><a href="/forgot-password" style="font-size:13px;">Gleymt lykilorð?</a></p>
+      <p style="text-align:center; margin-top:8px;"><a href="/" style="font-size:13px;">&larr; Til baka á forsíðu</a></p>
 
       <div class="login-hint">
         Prufuaðgangar &mdash; Tengiliður fyrirtækis: <strong>sigrun@nordictech.is</strong> / beron123<br>
