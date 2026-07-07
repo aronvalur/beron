@@ -6,11 +6,17 @@
       <h1><%= company.name %></h1>
       <p class="subtitle">Kennitala <%= company.kennitala %> &middot; <%= company.billing_email %></p>
     </div>
-    <form method="POST" action="/superadmin/companies/<%= company.id %>/subscription">
-      <button type="submit" class="btn <%= subscription && subscription.active ? 'btn-danger' : '' %>">
-        <%= subscription && subscription.active ? 'Gera áskrift óvirka' : 'Virkja áskrift' %>
-      </button>
-    </form>
+    <div class="btn-row">
+      <form method="POST" action="/superadmin/companies/<%= company.id %>/subscription">
+        <button type="submit" class="btn <%= subscription && subscription.active ? 'btn-danger' : '' %>">
+          <%= subscription && subscription.active ? 'Gera áskrift óvirka' : 'Virkja áskrift' %>
+        </button>
+      </form>
+      <form method="POST" action="/superadmin/companies/<%= company.id %>/delete"
+            onsubmit="return confirm('Eyða <%= company.name %> - öllum starfsmönnum, gjafapöntunum og innskráningum tengiliða? Þessu er ekki hægt að skila.') && confirm('Ertu alveg viss? Þetta eyðir fyrirtækinu endanlega og er ekki hægt að afturkalla.');">
+        <button type="submit" class="btn btn-danger">Eyða fyrirtæki</button>
+      </form>
+    </div>
   </div>
 
   <% if (justCreated && newPassword) { %>

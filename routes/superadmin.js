@@ -144,6 +144,24 @@ router.post('/companies/:id/subscription', (req, res) => {
   res.redirect('/superadmin/companies/' + company.id);
 });
 
+// Permanent delete - not just deactivation. The confirm step happens
+// twice client-side (see company-detail.ejs) before this ever gets hit,
+// since there's no undo: every login, employee, event, and gift order
+// belonging to the company goes with it.
+router.post('/companies/:id/delete', (req, res) => {
+  const company = store.find('companies', req.params.id);
+  if (!company) return res.status(404).render('error', { message: 'Fyrirtæki fannst ekki.' });
+
+  store.where('users', (u) => u.company_id === company.id).forEach((u) => store.remove('users', u.id));
+  store.where('subscriptions', (s) => s.company_id === company.id).forEach((s) => store.remove('subscriptions', s.id));
+  store.where('giftOrders', (o) => o.company_id === company.id).forEach((o) => store.remove('giftOrders', o.id));
+  store.where('events', (e) => e.company_id === company.id).forEach((e) => store.remove('events', e.id));
+  store.where('employees', (e) => e.company_id === company.id).forEach((e) => store.remove('employees', e.id));
+  store.remove('companies', company.id);
+
+  res.redirect('/superadmin/companies');
+});
+
 // The main operational view for Beron HQ: every gift order across every
 // company, always showing a date and countdown so staff know what's urgent.
 // Sorted soonest/most-overdue first so the queue reads like a to-do list.
