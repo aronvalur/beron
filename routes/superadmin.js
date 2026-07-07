@@ -130,8 +130,27 @@ router.get('/companies/:id', (req, res) => {
     subscription,
     plan,
     justCreated: req.query.created === '1',
-    newPassword: req.query.pwd || null
+    newPassword: req.query.pwd || null,
+    justReset: req.query.reset === '1',
+    resetEmail: req.query.email || null
   });
+});
+
+// Support path for "I forgot my password": a company contact emails
+// support@beron.is (see forgot-password.ejs), and Beron HQ sets them a new
+// easy password here - shown once, same as the initial onboarding password,
+// so it can be relayed back. The contact can then change it themselves
+// under Stillingar once they're logged in again.
+router.post('/companies/:id/admins/:userId/reset-password', (req, res) => {
+  const company = store.find('companies', req.params.id);
+  if (!company) return res.status(404).render('error', { message: 'Fyrirtæki fannst ekki.' });
+  const user = store.find('users', req.params.userId);
+  if (!user || user.company_id !== company.id) {
+    return res.status(404).render('error', { message: 'Tengiliður fannst ekki.' });
+  }
+  const newPassword = (req.body.password || '').trim() || 'beron123';
+  store.update('users', user.id, { password_hash: bcrypt.hashSync(newPassword, 10) });
+  res.redirect(`/superadmin/companies/${company.id}?reset=1&pwd=${encodeURIComponent(newPassword)}&email=${encodeURIComponent(user.email)}`);
 });
 
 router.post('/companies/:id/subscription', (req, res) => {
