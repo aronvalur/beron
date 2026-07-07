@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "Beron - B2B employee gifting and recognition platform (Iceland)",
   "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
-    "start": "node server.js",
-    "seed": "node db/seed.js"
+    "start": "node --no-warnings server.js",
+    "seed": "node --no-warnings db/seed.js"
   },
   "dependencies": {
     "express": "^4.19.2",

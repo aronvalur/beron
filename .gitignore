@@ -1,3 +1,5 @@
 node_modules/
 db/data.json
+db/data.json.migrated
+db/beron.db
 *.log
