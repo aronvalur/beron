@@ -1,0 +1,22 @@
+# Render Blueprint - lets Render provision this whole app (web service +
+# persistent disk for the SQLite database) in one step from this repo.
+# In the Render dashboard: New -> Blueprint -> pick this repo -> Apply.
+services:
+  - type: web
+    name: beron
+    runtime: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: npm start
+    disk:
+      name: beron-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: NODE_VERSION
+        value: 22.22.3
