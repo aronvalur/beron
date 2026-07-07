@@ -4,6 +4,7 @@ const { requireLogin, requireSuperAdmin } = require('../middleware/auth');
 const { runDailyWorkflows, upcomingEventsForCompany, daysBetween } = require('../lib/events');
 const { computeInvoice, PLANS } = require('../lib/pricing');
 const { MONTHS_IS } = require('../lib/format');
+const { billingForCompanyMonth } = require('../lib/billing');
 
 const router = express.Router();
 router.use(requireLogin, requireSuperAdmin);
@@ -116,49 +117,9 @@ router.get('/orders', (req, res) => {
 // actually delivered/ordered that month (plus any custom-order handling
 // fees), and the recurring per-employee subscription amount. This is what
 // finance uses at month-end to know exactly what to invoice each company.
-function orderMonthDate(order) {
-  if (order.gift_type === 'custom' && order.delivery_date) return order.delivery_date;
-  if (order.event_id) {
-    const event = store.find('events', order.event_id);
-    if (event) return event.date;
-  }
-  return order.delivery_date || null;
-}
-
+// (Shared with the HR-facing billing page - see lib/billing.js.)
 function financeForMonth(year, month) {
-  const companies = store.all('companies');
-  return companies.map((c) => {
-    const employees = store.where('employees', (e) => e.company_id === c.id);
-    const activeEmployeeCount = employees.filter((e) => e.active).length;
-    const invoice = computeInvoice(c.subscription_plan, activeEmployeeCount);
-
-    const orders = store
-      .where('giftOrders', (o) => o.company_id === c.id && o.status !== 'cancelled')
-      .filter((o) => {
-        const dateStr = orderMonthDate(o);
-        if (!dateStr) return false;
-        const d = new Date(dateStr + 'T00:00:00');
-        return d.getFullYear() === year && d.getMonth() === month;
-      });
-
-    const giftCostTotal = orders.reduce((sum, o) => sum + (Number(o.budget_amount) || 0), 0);
-    const handlingFeeTotal = orders.reduce((sum, o) => sum + (Number(o.handling_fee) || 0), 0);
-    const giftChargeTotal = giftCostTotal + handlingFeeTotal;
-    const subscriptionTotal = invoice.subtotal;
-
-    return {
-      company: c,
-      activeEmployeeCount,
-      pricePerEmployee: invoice.pricePerEmployee,
-      planLabel: invoice.plan.label,
-      orderCount: orders.length,
-      giftCostTotal,
-      handlingFeeTotal,
-      giftChargeTotal,
-      subscriptionTotal,
-      grandTotal: giftChargeTotal + subscriptionTotal
-    };
-  });
+  return store.all('companies').map((c) => billingForCompanyMonth(c, year, month));
 }
 
 router.get('/finance', (req, res) => {

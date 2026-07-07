@@ -2,6 +2,8 @@ const express = require('express');
 const store = require('../db/store');
 const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
 const { PLANS, SETUP_FEE, computeInvoice } = require('../lib/pricing');
+const { billingForCompanyMonth } = require('../lib/billing');
+const { MONTHS_IS } = require('../lib/format');
 
 const router = express.Router();
 router.use(requireLogin, requireCompanyAdmin);
@@ -13,7 +15,11 @@ router.get('/', (req, res) => {
   const activeEmployeeCount = store.where('employees', (e) => e.company_id === companyId && e.active).length;
   const invoice = computeInvoice(company.subscription_plan, activeEmployeeCount);
 
-  res.render('billing', { company, subscription, invoice, PLANS, SETUP_FEE, saved: req.query.saved });
+  const today = new Date();
+  const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());
+  const monthLabel = `${MONTHS_IS[today.getMonth()]} ${today.getFullYear()}`;
+
+  res.render('billing', { company, subscription, invoice, monthBilling, monthLabel, PLANS, SETUP_FEE, saved: req.query.saved });
 });
 
 router.post('/', (req, res) => {
