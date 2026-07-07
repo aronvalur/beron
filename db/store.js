@@ -8,14 +8,33 @@ const path = require('path');
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 const EMPTY = {
-  meta: { nextId: { companies: 1, users: 1, employees: 1, events: 1, giftOrders: 1, subscriptions: 1 } },
+  meta: { nextId: { companies: 1, users: 1, employees: 1, events: 1, giftOrders: 1, subscriptions: 1, meetingRequests: 1 } },
   companies: [],
   users: [],
   employees: [],
   events: [],
   giftOrders: [],
-  subscriptions: []
+  subscriptions: [],
+  meetingRequests: []
 };
+
+// Backfills any tables/nextId counters that didn't exist yet in an
+// already-saved data.json (e.g. after adding a new collection like
+// meetingRequests), so older data files keep working without a manual reset.
+function withMigrations(data) {
+  let changed = false;
+  if (!data.meta) { data.meta = { nextId: {} }; changed = true; }
+  if (!data.meta.nextId) { data.meta.nextId = {}; changed = true; }
+  Object.keys(EMPTY.meta.nextId).forEach((table) => {
+    if (!(table in data.meta.nextId)) { data.meta.nextId[table] = 1; changed = true; }
+  });
+  Object.keys(EMPTY).forEach((key) => {
+    if (key === 'meta') return;
+    if (!Array.isArray(data[key])) { data[key] = []; changed = true; }
+  });
+  if (changed) save(data);
+  return data;
+}
 
 function load() {
   if (!fs.existsSync(DATA_FILE)) {
@@ -24,7 +43,7 @@ function load() {
   }
   const raw = fs.readFileSync(DATA_FILE, 'utf-8');
   try {
-    return JSON.parse(raw);
+    return withMigrations(JSON.parse(raw));
   } catch (e) {
     console.error('Corrupt data.json, reinitializing.', e);
     save(EMPTY);

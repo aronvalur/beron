@@ -210,4 +210,23 @@ router.post('/orders/:id/status', (req, res) => {
   res.redirect('/superadmin/orders');
 });
 
+// "Bóka fund" leads submitted from the public marketing site - newest first
+// so Beron HQ always sees who still needs a follow-up call.
+router.get('/fyrirspurnir', (req, res) => {
+  const status = req.query.status || 'all';
+  let leads = store.all('meetingRequests').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  if (status !== 'all') leads = leads.filter((l) => l.status === status);
+  res.render('superadmin/leads', { leads, status });
+});
+
+router.post('/fyrirspurnir/:id/status', (req, res) => {
+  const lead = store.find('meetingRequests', req.params.id);
+  if (!lead) return res.status(404).render('error', { message: 'Fyrirspurn fannst ekki.' });
+  const allowed = ['new', 'contacted', 'closed'];
+  if (allowed.includes(req.body.status)) {
+    store.update('meetingRequests', lead.id, { status: req.body.status });
+  }
+  res.redirect(req.get('referer') || '/superadmin/fyrirspurnir');
+});
+
 module.exports = router;

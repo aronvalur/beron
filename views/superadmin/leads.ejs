@@ -1,0 +1,63 @@
+<%- include('../partials/head', { title: 'Fyrirspurnir' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Fyrirspurnir</h1>
+      <p class="subtitle">"Bóka fund" beiðnir af vefsíðunni - fylgdu eftir áður en þær kólna.</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filters">
+      <a href="/superadmin/fyrirspurnir?status=all" class="<%= status === 'all' ? 'active' : '' %>">Allar</a>
+      <a href="/superadmin/fyrirspurnir?status=new" class="<%= status === 'new' ? 'active' : '' %>">Nýjar</a>
+      <a href="/superadmin/fyrirspurnir?status=contacted" class="<%= status === 'contacted' ? 'active' : '' %>">Haft samband</a>
+      <a href="/superadmin/fyrirspurnir?status=closed" class="<%= status === 'closed' ? 'active' : '' %>">Lokið</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <% if (leads.length === 0) { %>
+      <div class="table-empty">Engar fyrirspurnir ennþá.</div>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Móttekið</th>
+            <th>Nafn</th>
+            <th>Fyrirtæki</th>
+            <th>Netfang</th>
+            <th>Sími</th>
+            <th>Fjöldi starfsmanna</th>
+            <th>Skilaboð</th>
+            <th>Staða</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% leads.forEach(function(l) { %>
+            <tr>
+              <td><%= formatDate(l.created_at) %></td>
+              <td><%= l.name %></td>
+              <td><%= l.company %></td>
+              <td><a href="mailto:<%= l.email %>"><%= l.email %></a></td>
+              <td><a href="tel:<%= l.phone %>"><%= l.phone %></a></td>
+              <td><%= l.employee_range || '—' %></td>
+              <td style="max-width:220px; color:var(--text-muted); font-size:13px;"><%= l.message || '—' %></td>
+              <td>
+                <form class="inline" method="POST" action="/superadmin/fyrirspurnir/<%= l.id %>/status">
+                  <select name="status" onchange="this.form.submit()">
+                    <option value="new" <%= l.status === 'new' ? 'selected' : '' %>>Ný fyrirspurn</option>
+                    <option value="contacted" <%= l.status === 'contacted' ? 'selected' : '' %>>Haft samband</option>
+                    <option value="closed" <%= l.status === 'closed' ? 'selected' : '' %>>Lokið</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

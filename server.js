@@ -5,10 +5,11 @@ const methodOverride = require('method-override');
 
 const { seedIfEmpty } = require('./db/seed');
 const { formatDate, formatDayMonth } = require('./lib/format');
-const { statusLabel, eventTypeLabel, deliveryPreferenceLabel, roleLabel } = require('./lib/labels');
+const { statusLabel, eventTypeLabel, deliveryPreferenceLabel, roleLabel, leadStatusLabel } = require('./lib/labels');
 
 seedIfEmpty();
 
+const marketingRoutes = require('./routes/marketing');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const birthdayRoutes = require('./routes/birthdays');
@@ -32,6 +33,7 @@ app.locals.statusLabel = statusLabel;
 app.locals.eventTypeLabel = eventTypeLabel;
 app.locals.deliveryPreferenceLabel = deliveryPreferenceLabel;
 app.locals.roleLabel = roleLabel;
+app.locals.leadStatusLabel = leadStatusLabel;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -55,6 +57,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/', authRoutes);
+app.use('/', marketingRoutes);
 app.use('/', dashboardRoutes);
 app.use('/birthdays', birthdayRoutes);
 app.use('/employees', employeeRoutes);

@@ -170,6 +170,9 @@ tr:last-child td { border-bottom: none; }
 .badge-birthday { background: var(--info-bg); color: var(--info); }
 .badge-christmas { background: var(--success-bg); color: var(--success); }
 .badge-custom { background: #f2e9d8; color: #8a6d3f; }
+.badge-new { background: var(--warn-bg); color: var(--warn); }
+.badge-contacted { background: var(--info-bg); color: var(--info); }
+.badge-closed { background: var(--success-bg); color: var(--success); }
 
 .btn {
   display: inline-block;
