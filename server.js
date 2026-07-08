@@ -14,7 +14,6 @@ const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const birthdayRoutes = require('./routes/birthdays');
 const employeeRoutes = require('./routes/employees');
-const eventRoutes = require('./routes/events');
 const giftOrderRoutes = require('./routes/giftOrders');
 const billingRoutes = require('./routes/billing');
 const settingsRoutes = require('./routes/settings');
@@ -61,7 +60,8 @@ app.use('/', marketingRoutes);
 app.use('/', dashboardRoutes);
 app.use('/birthdays', birthdayRoutes);
 app.use('/employees', employeeRoutes);
-app.use('/events', eventRoutes);
+// Tilefni is now folded into Gjafapantanir - keep the old URL working.
+app.get('/events', (req, res) => res.redirect('/gift-orders'));
 app.use('/gift-orders', giftOrderRoutes);
 app.use('/billing', billingRoutes);
 app.use('/settings', settingsRoutes);

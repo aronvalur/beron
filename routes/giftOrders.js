@@ -2,7 +2,7 @@ const express = require('express');
 const store = require('../db/store');
 const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
 const { CUSTOM_HANDLING_FEE } = require('../lib/pricing');
-const { daysBetween, NOTE_CUTOFF_DAYS, CANCEL_CUTOFF_DAYS } = require('../lib/events');
+const { daysBetween, runDailyWorkflows, NOTE_CUTOFF_DAYS, CANCEL_CUTOFF_DAYS } = require('../lib/events');
 
 const router = express.Router();
 router.use(requireLogin, requireCompanyAdmin);
@@ -13,10 +13,18 @@ function daysAwayFor(order, event) {
   return daysBetween(new Date(), new Date(relevantDate + 'T00:00:00'));
 }
 
+// Gjafapantanir is the one place HR looks for both "what's coming up" and
+// "what's the status" - it used to be split across a separate Tilefni page,
+// but that just duplicated this table with slightly different columns.
 router.get('/', (req, res) => {
   const companyId = req.session.user.company_id;
-  const orders = store
-    .where('giftOrders', (o) => o.company_id === companyId)
+  runDailyWorkflows(companyId);
+
+  const filter = req.query.type || 'all';
+  let orders = store.where('giftOrders', (o) => o.company_id === companyId);
+  if (filter !== 'all') orders = orders.filter((o) => o.gift_type === filter);
+
+  orders = orders
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .map((o) => {
       const event = o.event_id ? store.find('events', o.event_id) : null;
@@ -26,9 +34,27 @@ router.get('/', (req, res) => {
         !['delivered', 'cancelled'].includes(o.status) &&
         daysAway !== null &&
         daysAway >= CANCEL_CUTOFF_DAYS;
-      return Object.assign({}, o, { employee: o.employee_id ? store.find('employees', o.employee_id) : null, event, daysAway, canCancel });
+      const canSkip =
+        (o.gift_type === 'birthday' || o.gift_type === 'christmas') &&
+        event &&
+        event.status === 'upcoming' &&
+        !['delivered', 'cancelled'].includes(o.status);
+      return Object.assign({}, o, {
+        employee: o.employee_id ? store.find('employees', o.employee_id) : null,
+        event,
+        daysAway,
+        canCancel,
+        canSkip
+      });
     });
-  res.render('gift-orders/index', { orders, error: req.query.error, cancelled: req.query.cancelled === '1' });
+
+  res.render('gift-orders/index', {
+    orders,
+    filter,
+    error: req.query.error,
+    cancelled: req.query.cancelled === '1',
+    skipped: req.query.skipped === '1'
+  });
 });
 
 router.get('/custom/new', (req, res) => {
@@ -119,6 +145,25 @@ router.post('/:id/cancel', (req, res) => {
 
   store.update('giftOrders', order.id, { status: 'cancelled' });
   res.redirect('/gift-orders?cancelled=1');
+});
+
+// HR can opt an employee out of an automatic birthday/Christmas gift
+// (e.g. someone on leave) - this skips the underlying event and cancels
+// its linked order. No lead-time cutoff here since it's just an opt-out,
+// not an in-progress custom order.
+router.post('/:id/skip', (req, res) => {
+  const order = store.find('giftOrders', req.params.id);
+  if (!order || order.company_id !== req.session.user.company_id) {
+    return res.status(404).render('error', { message: 'Pöntun fannst ekki.' });
+  }
+  if (order.gift_type !== 'birthday' && order.gift_type !== 'christmas') {
+    return res.redirect('/gift-orders?error=' + encodeURIComponent('Aðeins hægt að sleppa afmælis- og jólagjöfum.'));
+  }
+  if (order.event_id) {
+    store.update('events', order.event_id, { status: 'skipped' });
+  }
+  store.update('giftOrders', order.id, { status: 'cancelled' });
+  res.redirect('/gift-orders?skipped=1');
 });
 
 module.exports = router;

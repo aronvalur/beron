@@ -10,7 +10,15 @@
   </div>
 
   <% if (cancelled) { %><div class="alert alert-success">Hætt við sérpöntun.</div><% } %>
+  <% if (skipped) { %><div class="alert alert-success">Sleppt.</div><% } %>
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <div class="filters">
+    <a href="/gift-orders" class="<%= filter === 'all' ? 'active' : '' %>">Allt</a>
+    <a href="/gift-orders?type=birthday" class="<%= filter === 'birthday' ? 'active' : '' %>">Afmæli</a>
+    <a href="/gift-orders?type=christmas" class="<%= filter === 'christmas' ? 'active' : '' %>">Jól</a>
+    <a href="/gift-orders?type=custom" class="<%= filter === 'custom' ? 'active' : '' %>">Sérpöntun</a>
+  </div>
 
   <div class="card">
     <% if (orders.length === 0) { %>
@@ -38,6 +46,10 @@
                   </form>
                 <% } else if (o.gift_type === 'custom' && o.status !== 'delivered' && o.status !== 'cancelled') { %>
                   <span style="font-size:12px; color:var(--text-muted);">Of seint að hætta við</span>
+                <% } else if (o.canSkip) { %>
+                  <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/skip" onsubmit="return confirm('Sleppa þessari gjöf? Hætt verður við pöntunina.');">
+                    <button type="submit" class="btn btn-sm btn-secondary">Sleppa</button>
+                  </form>
                 <% } %>
               </td>
             </tr>
