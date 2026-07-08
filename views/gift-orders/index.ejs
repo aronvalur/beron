@@ -1,10 +1,9 @@
-<%- include('../partials/head', { title: 'Gjafapantanir' }) %>
+<%- include('../partials/head', { title: 'Framundan' }) %>
 <%- include('../partials/nav') %>
 
   <div class="page-header">
     <div>
-      <h1>Gjafapantanir</h1>
-      <p class="subtitle">Aðeins til skoðunar — starfsfólk Beron uppfærir stöðuna eftir því sem gjöfin er pöntuð og afhent.</p>
+      <h1>Framundan</h1>
     </div>
     <a href="/gift-orders/custom/new" class="btn">+ Sérpöntun</a>
   </div>
@@ -23,7 +22,7 @@
   <div class="card">
     <% if (orders.length === 0) { %>
       <div class="empty-state">
-        <h3>Engar gjafapantanir ennþá</h3>
+        <h3>Ekkert framundan ennþá</h3>
         <p>Afmælis- og jólapantanir birtast hér sjálfkrafa. Notaðu „Sérpöntun" fyrir stöðuhækkanir, nýja starfsmenn og önnur sérstök tilefni.</p>
       </div>
     <% } else { %>
