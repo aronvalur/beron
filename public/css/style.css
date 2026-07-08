@@ -197,6 +197,8 @@ tr:last-child td { border-bottom: none; }
 .btn-sm { padding: 5px 10px; font-size: 12.5px; }
 .btn-danger { background: #fff; color: var(--danger); border-color: #f0d3d3; }
 .btn-danger:hover { background: var(--danger-bg); }
+.btn-success { background: #fff; color: var(--success); border-color: #c9e6d5; }
+.btn-success:hover { background: var(--success-bg); }
 .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
 form.inline { display: inline-flex; }

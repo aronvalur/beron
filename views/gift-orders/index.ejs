@@ -69,7 +69,7 @@
                   </form>
                 <% } else if (o.canRestore) { %>
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/restore" onsubmit="return confirm('Taka þessa pöntun til baka?');">
-                    <button type="submit" class="btn btn-sm btn-secondary">Taka til baka</button>
+                    <button type="submit" class="btn btn-sm btn-success">Taka til baka</button>
                   </form>
                 <% } else if (o.status === 'cancelled') { %>
                   <span style="font-size:12px; color:var(--text-muted);" title="Of seint að taka til baka - dagsetningin er of nálægt eða liðin.">Of seint</span>
