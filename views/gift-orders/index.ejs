@@ -28,53 +28,59 @@
         <p>Afmælis- og jólapantanir birtast hér sjálfkrafa. Notaðu „Sérpöntun" fyrir stöðuhækkanir, nýja starfsmenn og önnur sérstök tilefni.</p>
       </div>
     <% } else { %>
+      <div class="table-scroll">
       <table>
-        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Fjárhæð</th><th>Þjónustugjald</th><th>Staða</th><th>Athugasemdir</th><th></th></tr></thead>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Fjárhæð</th><th>Staða</th><th>Athugasemd</th><th></th></tr></thead>
         <tbody>
           <% orders.forEach(function(o) { %>
             <tr>
               <td><%= o.employee ? o.employee.name : '—' %></td>
               <td><span class="badge badge-<%= o.gift_type %>"><%= o.occasion || eventTypeLabel(o.gift_type) %></span></td>
               <td><%= o.event ? formatDate(o.event.date) : '—' %></td>
-              <td><%= o.budget_amount ? Number(o.budget_amount).toLocaleString('is-IS') + ' kr.' : '—' %></td>
-              <td><%= o.handling_fee ? Number(o.handling_fee).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td>
+                <%= o.budget_amount ? Number(o.budget_amount).toLocaleString('is-IS') + ' kr.' : '—' %>
+                <% if (o.handling_fee) { %>
+                  <div style="font-size:11.5px; color:var(--text-muted); font-weight:600;">+ <%= Number(o.handling_fee).toLocaleString('is-IS') %> kr. gjald</div>
+                <% } %>
+              </td>
               <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
-              <td style="max-width:200px;">
+              <td style="min-width:180px;">
                 <% if (o.canEditNote) { %>
                   <form class="inline note-form" method="POST" action="/gift-orders/<%= o.id %>/note">
                     <input type="hidden" name="redirect_to" value="/gift-orders">
-                    <input type="text" name="notes" value="<%= o.notes || '' %>" placeholder="t.d. elskar dökkt súkkulaði">
+                    <input type="text" name="notes" value="<%= o.notes || '' %>" placeholder="athugasemd">
                     <button type="submit" class="btn btn-sm btn-secondary">Vista</button>
                   </form>
                 <% } else { %>
-                  <span style="font-size:12.5px; color:var(--text-muted);" title="Læst - innan við <%= NOTE_CUTOFF_DAYS %> dagar til stefnu">
+                  <span class="locked-note" title="Læst - innan við <%= NOTE_CUTOFF_DAYS %> dagar til stefnu">
                     <%= o.notes || '—' %> <span style="opacity:0.7;">🔒</span>
                   </span>
                 <% } %>
               </td>
-              <td>
+              <td class="actions-cell">
                 <% if (o.canCancel) { %>
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/cancel" onsubmit="return confirm('Hætta við þessa sérpöntun?');">
                     <button type="submit" class="btn btn-sm btn-danger">Hætta við</button>
                   </form>
                 <% } else if (o.gift_type === 'custom' && o.status !== 'delivered' && o.status !== 'cancelled') { %>
-                  <span style="font-size:12px; color:var(--text-muted);">Of seint að hætta við</span>
+                  <span style="font-size:12px; color:var(--text-muted);" title="Of seint að hætta við - þarf að gerast minnst 7 dögum fyrir afhendingu.">Of seint</span>
                 <% } else if (o.canSkip) { %>
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/skip" onsubmit="return confirm('Sleppa þessari gjöf? Hætt verður við pöntunina.');">
                     <button type="submit" class="btn btn-sm btn-secondary">Sleppa</button>
                   </form>
                 <% } else if (o.canRestore) { %>
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/restore" onsubmit="return confirm('Taka þessa pöntun til baka?');">
-                    <button type="submit" class="btn btn-sm">Taka til baka</button>
+                    <button type="submit" class="btn btn-sm btn-secondary">Taka til baka</button>
                   </form>
                 <% } else if (o.status === 'cancelled') { %>
-                  <span style="font-size:12px; color:var(--text-muted);">Of seint að taka til baka</span>
+                  <span style="font-size:12px; color:var(--text-muted);" title="Of seint að taka til baka - dagsetningin er of nálægt eða liðin.">Of seint</span>
                 <% } %>
               </td>
             </tr>
           <% }); %>
         </tbody>
       </table>
+      </div>
     <% } %>
   </div>
 
