@@ -11,6 +11,7 @@
 
   <% if (cancelled) { %><div class="alert alert-success">Hætt við sérpöntun.</div><% } %>
   <% if (skipped) { %><div class="alert alert-success">Sleppt.</div><% } %>
+  <% if (restored) { %><div class="alert alert-success">Tekið til baka.</div><% } %>
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
   <div class="filters">
@@ -38,7 +39,19 @@
               <td><%= o.budget_amount ? Number(o.budget_amount).toLocaleString('is-IS') + ' kr.' : '—' %></td>
               <td><%= o.handling_fee ? Number(o.handling_fee).toLocaleString('is-IS') + ' kr.' : '—' %></td>
               <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
-              <td style="max-width:180px; color:var(--text-muted); font-size:13px;"><%= o.notes || '—' %></td>
+              <td style="max-width:200px;">
+                <% if (o.canEditNote) { %>
+                  <form class="inline note-form" method="POST" action="/gift-orders/<%= o.id %>/note">
+                    <input type="hidden" name="redirect_to" value="/gift-orders">
+                    <input type="text" name="notes" value="<%= o.notes || '' %>" placeholder="t.d. elskar dökkt súkkulaði">
+                    <button type="submit" class="btn btn-sm btn-secondary">Vista</button>
+                  </form>
+                <% } else { %>
+                  <span style="font-size:12.5px; color:var(--text-muted);" title="Læst - innan við <%= NOTE_CUTOFF_DAYS %> dagar til stefnu">
+                    <%= o.notes || '—' %> <span style="opacity:0.7;">🔒</span>
+                  </span>
+                <% } %>
+              </td>
               <td>
                 <% if (o.canCancel) { %>
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/cancel" onsubmit="return confirm('Hætta við þessa sérpöntun?');">
@@ -50,6 +63,12 @@
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/skip" onsubmit="return confirm('Sleppa þessari gjöf? Hætt verður við pöntunina.');">
                     <button type="submit" class="btn btn-sm btn-secondary">Sleppa</button>
                   </form>
+                <% } else if (o.canRestore) { %>
+                  <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/restore" onsubmit="return confirm('Taka þessa pöntun til baka?');">
+                    <button type="submit" class="btn btn-sm">Taka til baka</button>
+                  </form>
+                <% } else if (o.status === 'cancelled') { %>
+                  <span style="font-size:12px; color:var(--text-muted);">Of seint að taka til baka</span>
                 <% } %>
               </td>
             </tr>

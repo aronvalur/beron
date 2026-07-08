@@ -39,12 +39,22 @@ router.get('/', (req, res) => {
         event &&
         event.status === 'upcoming' &&
         !['delivered', 'cancelled'].includes(o.status);
+      const canEditNote = daysAway === null || daysAway >= NOTE_CUTOFF_DAYS;
+      // A cancelled/skipped order can be brought back as long as there's
+      // still time to act on it - same lead-time rule as the action that
+      // cancelled it in the first place.
+      const canRestore =
+        o.status === 'cancelled' &&
+        daysAway !== null &&
+        daysAway >= (o.gift_type === 'custom' ? CANCEL_CUTOFF_DAYS : 0);
       return Object.assign({}, o, {
         employee: o.employee_id ? store.find('employees', o.employee_id) : null,
         event,
         daysAway,
         canCancel,
-        canSkip
+        canSkip,
+        canEditNote,
+        canRestore
       });
     });
 
@@ -53,7 +63,9 @@ router.get('/', (req, res) => {
     filter,
     error: req.query.error,
     cancelled: req.query.cancelled === '1',
-    skipped: req.query.skipped === '1'
+    skipped: req.query.skipped === '1',
+    restored: req.query.restored === '1',
+    NOTE_CUTOFF_DAYS
   });
 });
 
@@ -164,6 +176,34 @@ router.post('/:id/skip', (req, res) => {
   }
   store.update('giftOrders', order.id, { status: 'cancelled' });
   res.redirect('/gift-orders?skipped=1');
+});
+
+// Undo a cancel/skip - only while there's still enough lead time to act on
+// it (same cutoff as the cancel/skip action itself), so this can't be used
+// to sneak a change in past the point where Beron already moved on.
+router.post('/:id/restore', (req, res) => {
+  const order = store.find('giftOrders', req.params.id);
+  if (!order || order.company_id !== req.session.user.company_id) {
+    return res.status(404).render('error', { message: 'Pöntun fannst ekki.' });
+  }
+  if (order.status !== 'cancelled') {
+    return res.redirect('/gift-orders?error=' + encodeURIComponent('Þessi pöntun er ekki afturkölluð.'));
+  }
+
+  const event = order.event_id ? store.find('events', order.event_id) : null;
+  const daysAway = daysAwayFor(order, event);
+  const cutoff = order.gift_type === 'custom' ? CANCEL_CUTOFF_DAYS : 0;
+  if (daysAway === null || daysAway < cutoff) {
+    return res.redirect(
+      '/gift-orders?error=' + encodeURIComponent('Of seint að taka til baka - dagsetningin er of nálægt eða liðin.')
+    );
+  }
+
+  store.update('giftOrders', order.id, { status: 'pending' });
+  if (event && event.status === 'skipped') {
+    store.update('events', event.id, { status: 'upcoming' });
+  }
+  res.redirect('/gift-orders?restored=1');
 });
 
 module.exports = router;
