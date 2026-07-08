@@ -9,8 +9,7 @@
     <a href="/gift-orders/custom/new" class="btn">+ Sérpöntun</a>
   </div>
 
-  <% if (cancelled) { %><div class="alert alert-success">Hætt við sérpöntun.</div><% } %>
-  <% if (skipped) { %><div class="alert alert-success">Sleppt.</div><% } %>
+  <% if (cancelled || skipped) { %><div class="alert alert-success">Hætt við.</div><% } %>
   <% if (restored) { %><div class="alert alert-success">Tekið til baka.</div><% } %>
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
@@ -65,8 +64,8 @@
                 <% } else if (o.gift_type === 'custom' && o.status !== 'delivered' && o.status !== 'cancelled') { %>
                   <span style="font-size:12px; color:var(--text-muted);" title="Of seint að hætta við - þarf að gerast minnst 7 dögum fyrir afhendingu.">Of seint</span>
                 <% } else if (o.canSkip) { %>
-                  <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/skip" onsubmit="return confirm('Sleppa þessari gjöf? Hætt verður við pöntunina.');">
-                    <button type="submit" class="btn btn-sm btn-secondary">Sleppa</button>
+                  <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/skip" onsubmit="return confirm('Hætta við þessari gjöf?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Hætta við</button>
                   </form>
                 <% } else if (o.canRestore) { %>
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/restore" onsubmit="return confirm('Taka þessa pöntun til baka?');">
