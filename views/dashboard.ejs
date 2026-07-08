@@ -17,8 +17,8 @@
       <div class="stat-label">Afmæli og jólagjafir næstu 30 daga</div>
     </div>
     <div class="card stat-card">
-      <div class="stat-value"><%= christmasCountdown !== null ? christmasCountdown + ' dagar' : '—' %></div>
-      <div class="stat-label"><%= christmasCountdown !== null ? 'Þar til jólagjafir (24. des.)' : 'Jólagjafir ekki innifaldar í áskrift' %></div>
+      <div class="stat-value"><%= activeEmployeeCount %></div>
+      <div class="stat-label">Virkir starfsmenn</div>
     </div>
     <div class="card stat-card">
       <div class="stat-value"><%= monthBilling.grandTotal.toLocaleString('is-IS') %> kr.</div>
@@ -41,7 +41,7 @@
     <p style="color:var(--text-muted); font-size:13px; margin:-8px 0 14px;">
       Afmæli og jólagjafir, í tímaröð. Beron útbýr og sendir þessar gjafapantanir sjálfkrafa —
       þú þarft ekkert að gera hér nema <a href="/birthdays">skoða allt afmælisyfirlitið</a> eða
-      <a href="/events">sleppa tilefni</a>.
+      <a href="/gift-orders">sleppa tilefni</a>.
     </p>
     <% if (upcomingEvents.length === 0) { %>
       <div class="table-empty">Ekkert framundan næstu 30 daga.</div>

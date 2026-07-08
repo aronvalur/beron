@@ -32,8 +32,6 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     })
     .sort((a, b) => a.daysAway - b.daysAway);
 
-  const upcomingChristmas = upcomingEvents.filter((e) => e.event_type === 'christmas');
-
   const activeEmployees = store.where('employees', (e) => e.company_id === companyId && e.active);
   const missingBudgetCount = activeEmployees.filter((e) => !e.birthday_budget).length;
 
@@ -46,22 +44,11 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
   const invoice = computeInvoice(company.subscription_plan, activeEmployees.length);
   const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());
 
-  const christmasCountdown = (() => {
-    if (company.subscription_plan !== 'birthdays_christmas') return null;
-    let year = today.getFullYear();
-    let xmas = new Date(year, 11, 24);
-    if (xmas < new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
-      xmas = new Date(year + 1, 11, 24);
-    }
-    return daysBetween(today, xmas);
-  })();
-
   res.render('dashboard', {
     company,
     upcomingEvents,
     missingBudgetCount,
-    upcomingChristmas,
-    christmasCountdown,
+    activeEmployeeCount: activeEmployees.length,
     recentOrders,
     invoice,
     monthBilling,
