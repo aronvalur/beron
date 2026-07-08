@@ -9,6 +9,9 @@
     <a href="/gift-orders/custom/new" class="btn">+ Sérpöntun</a>
   </div>
 
+  <% if (cancelled) { %><div class="alert alert-success">Hætt við sérpöntun.</div><% } %>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
   <div class="card">
     <% if (orders.length === 0) { %>
       <div class="empty-state">
@@ -17,7 +20,7 @@
       </div>
     <% } else { %>
       <table>
-        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Fjárhæð</th><th>Þjónustugjald</th><th>Staða</th><th>Athugasemdir</th></tr></thead>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Fjárhæð</th><th>Þjónustugjald</th><th>Staða</th><th>Athugasemdir</th><th></th></tr></thead>
         <tbody>
           <% orders.forEach(function(o) { %>
             <tr>
@@ -28,6 +31,15 @@
               <td><%= o.handling_fee ? Number(o.handling_fee).toLocaleString('is-IS') + ' kr.' : '—' %></td>
               <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
               <td style="max-width:180px; color:var(--text-muted); font-size:13px;"><%= o.notes || '—' %></td>
+              <td>
+                <% if (o.canCancel) { %>
+                  <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/cancel" onsubmit="return confirm('Hætta við þessa sérpöntun?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Hætta við</button>
+                  </form>
+                <% } else if (o.gift_type === 'custom' && o.status !== 'delivered' && o.status !== 'cancelled') { %>
+                  <span style="font-size:12px; color:var(--text-muted);">Of seint að hætta við</span>
+                <% } %>
+              </td>
             </tr>
           <% }); %>
         </tbody>

@@ -1,7 +1,7 @@
 const express = require('express');
 const store = require('../db/store');
 const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
-const { runDailyWorkflows, upcomingEventsForCompany, daysBetween } = require('../lib/events');
+const { runDailyWorkflows, upcomingEventsForCompany, daysBetween, NOTE_CUTOFF_DAYS } = require('../lib/events');
 const { computeInvoice } = require('../lib/pricing');
 const { billingForCompanyMonth } = require('../lib/billing');
 
@@ -26,7 +26,8 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
       return Object.assign({}, ev, {
         employee: emp,
         daysAway: diff,
-        order: ordersByEvent.get(ev.id) || null
+        order: ordersByEvent.get(ev.id) || null,
+        canEditNote: diff >= NOTE_CUTOFF_DAYS
       });
     })
     .sort((a, b) => a.daysAway - b.daysAway);
@@ -63,7 +64,9 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     christmasCountdown,
     recentOrders,
     invoice,
-    monthBilling
+    monthBilling,
+    error: req.query.error,
+    NOTE_CUTOFF_DAYS
   });
 });
 
