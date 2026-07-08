@@ -205,6 +205,13 @@ form.inline { display: inline-flex; }
 
 .table-scroll { overflow-x: auto; }
 
+.search-bar { margin-bottom: 16px; }
+.search-bar input[type="text"] {
+  width: 100%; max-width: 360px; padding: 9px 14px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff;
+}
+.search-bar input[type="text"]:focus { outline: none; border-color: var(--navy); }
+
 .note-form { display: flex !important; gap: 6px; align-items: center; min-width: 0; }
 .note-form input[type="text"] {
   padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;

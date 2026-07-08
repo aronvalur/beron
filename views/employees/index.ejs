@@ -9,6 +9,12 @@
     <a href="/employees/new" class="btn">+ Bæta við starfsmanni</a>
   </div>
 
+  <% if (employees.length > 0) { %>
+    <div class="search-bar">
+      <input type="text" id="employee-search" placeholder="Leita eftir nafni eða deild..." autocomplete="off">
+    </div>
+  <% } %>
+
   <div class="card">
     <% if (employees.length === 0) { %>
       <div class="empty-state">
@@ -16,13 +22,13 @@
         <p>Bættu starfsfólkinu þínu við svo Beron geti byrjað að fylgjast með afmælum og tilefnum.</p>
       </div>
     <% } else { %>
-      <table>
+      <table id="employee-table">
         <thead>
           <tr><th>Nafn</th><th>Afmæli</th><th>Deild</th><th>Gjafafjárhæð</th><th>Afhending</th><th>Staða</th><th></th></tr>
         </thead>
         <tbody>
           <% employees.forEach(function(e) { %>
-            <tr>
+            <tr data-search="<%= (e.name + ' ' + (e.department || '')).toLowerCase() %>">
               <td><%= e.name %></td>
               <td><%= formatDayMonth(e.birthday) %></td>
               <td><%= e.department || '—' %></td>
@@ -44,7 +50,28 @@
           <% }); %>
         </tbody>
       </table>
+      <div id="employee-empty" class="table-empty" style="display:none;">Ekkert starfsfólk fannst.</div>
     <% } %>
   </div>
+
+  <% if (employees.length > 0) { %>
+    <script>
+      (function () {
+        const input = document.getElementById('employee-search');
+        const rows = Array.from(document.querySelectorAll('#employee-table tbody tr'));
+        const empty = document.getElementById('employee-empty');
+        input.addEventListener('input', function () {
+          const q = input.value.trim().toLowerCase();
+          let visible = 0;
+          rows.forEach(function (row) {
+            const match = row.dataset.search.includes(q);
+            row.style.display = match ? '' : 'none';
+            if (match) visible++;
+          });
+          empty.style.display = visible === 0 ? '' : 'none';
+        });
+      })();
+    </script>
+  <% } %>
 
 <%- include('../partials/footer') %>
