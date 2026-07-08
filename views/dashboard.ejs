@@ -72,7 +72,7 @@
                   </form>
                 <% } else if (ev.order) { %>
                   <span class="locked-note" title="Læst - innan við <%= NOTE_CUTOFF_DAYS %> dagar til stefnu">
-                    <%= ev.order.notes || '—' %> <span style="opacity:0.7;">🔒</span>
+                    <%= ev.order.notes || '—' %> <span style="opacity:0.7; font-weight:600;">(læst)</span>
                   </span>
                 <% } else { %>
                   <span style="font-size:12.5px; color:var(--text-muted);">—</span>
