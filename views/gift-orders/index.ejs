@@ -12,11 +12,29 @@
   <% if (restored) { %><div class="alert alert-success">Tekið til baka.</div><% } %>
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
+  <%
+    function filterUrl(newType, newRange) {
+      const t = newType !== undefined ? newType : filter;
+      const r = newRange !== undefined ? newRange : range;
+      const params = [];
+      if (t && t !== 'all') params.push('type=' + t);
+      if (r && r !== 'all') params.push('range=' + r);
+      return '/gift-orders' + (params.length ? '?' + params.join('&') : '');
+    }
+  %>
+
   <div class="filters">
-    <a href="/gift-orders" class="<%= filter === 'all' ? 'active' : '' %>">Allt</a>
-    <a href="/gift-orders?type=birthday" class="<%= filter === 'birthday' ? 'active' : '' %>">Afmæli</a>
-    <a href="/gift-orders?type=christmas" class="<%= filter === 'christmas' ? 'active' : '' %>">Jól</a>
-    <a href="/gift-orders?type=custom" class="<%= filter === 'custom' ? 'active' : '' %>">Sérpöntun</a>
+    <a href="<%= filterUrl('all') %>" class="<%= filter === 'all' ? 'active' : '' %>">Allt</a>
+    <a href="<%= filterUrl('birthday') %>" class="<%= filter === 'birthday' ? 'active' : '' %>">Afmæli</a>
+    <a href="<%= filterUrl('christmas') %>" class="<%= filter === 'christmas' ? 'active' : '' %>">Jól</a>
+    <a href="<%= filterUrl('custom') %>" class="<%= filter === 'custom' ? 'active' : '' %>">Sérpöntun</a>
+  </div>
+
+  <div class="filters">
+    <a href="<%= filterUrl(undefined, 'all') %>" class="<%= range === 'all' ? 'active' : '' %>">Allt tímabil</a>
+    <a href="<%= filterUrl(undefined, 'today') %>" class="<%= range === 'today' ? 'active' : '' %>">Í dag</a>
+    <a href="<%= filterUrl(undefined, '7') %>" class="<%= range === '7' ? 'active' : '' %>">Næstu 7 daga</a>
+    <a href="<%= filterUrl(undefined, 'month') %>" class="<%= range === 'month' ? 'active' : '' %>">Þennan mánuð</a>
   </div>
 
   <div class="card">

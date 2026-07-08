@@ -21,46 +21,73 @@ router.get('/', (req, res) => {
   runDailyWorkflows(companyId);
 
   const filter = req.query.type || 'all';
+  const range = req.query.range || 'all';
+  const today = new Date();
+
   let orders = store.where('giftOrders', (o) => o.company_id === companyId);
   if (filter !== 'all') orders = orders.filter((o) => o.gift_type === filter);
 
-  orders = orders
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .map((o) => {
-      const event = o.event_id ? store.find('events', o.event_id) : null;
-      const daysAway = daysAwayFor(o, event);
-      const canCancel =
-        o.gift_type === 'custom' &&
-        !['delivered', 'cancelled'].includes(o.status) &&
-        daysAway !== null &&
-        daysAway >= CANCEL_CUTOFF_DAYS;
-      const canSkip =
-        (o.gift_type === 'birthday' || o.gift_type === 'christmas') &&
-        event &&
-        event.status === 'upcoming' &&
-        !['delivered', 'cancelled'].includes(o.status);
-      const canEditNote = daysAway === null || daysAway >= NOTE_CUTOFF_DAYS;
-      // A cancelled/skipped order can be brought back as long as there's
-      // still time to act on it - same lead-time rule as the action that
-      // cancelled it in the first place.
-      const canRestore =
-        o.status === 'cancelled' &&
-        daysAway !== null &&
-        daysAway >= (o.gift_type === 'custom' ? CANCEL_CUTOFF_DAYS : 0);
-      return Object.assign({}, o, {
-        employee: o.employee_id ? store.find('employees', o.employee_id) : null,
-        event,
-        daysAway,
-        canCancel,
-        canSkip,
-        canEditNote,
-        canRestore
-      });
+  orders = orders.map((o) => {
+    const event = o.event_id ? store.find('events', o.event_id) : null;
+    const daysAway = daysAwayFor(o, event);
+    const canCancel =
+      o.gift_type === 'custom' &&
+      !['delivered', 'cancelled'].includes(o.status) &&
+      daysAway !== null &&
+      daysAway >= CANCEL_CUTOFF_DAYS;
+    const canSkip =
+      (o.gift_type === 'birthday' || o.gift_type === 'christmas') &&
+      event &&
+      event.status === 'upcoming' &&
+      !['delivered', 'cancelled'].includes(o.status);
+    const canEditNote = daysAway === null || daysAway >= NOTE_CUTOFF_DAYS;
+    // A cancelled/skipped order can be brought back as long as there's
+    // still time to act on it - same lead-time rule as the action that
+    // cancelled it in the first place.
+    const canRestore =
+      o.status === 'cancelled' &&
+      daysAway !== null &&
+      daysAway >= (o.gift_type === 'custom' ? CANCEL_CUTOFF_DAYS : 0);
+    return Object.assign({}, o, {
+      employee: o.employee_id ? store.find('employees', o.employee_id) : null,
+      event,
+      daysAway,
+      canCancel,
+      canSkip,
+      canEditNote,
+      canRestore
     });
+  });
+
+  // Quick date-range shortcuts, in addition to the gift-type filter above -
+  // "Í dag"/"7 dagar" look at how many days out the event is, "Þessi mánuð"
+  // matches the calendar month regardless of year (so a mid-month order from
+  // a couple weeks ago still shows up under this month too).
+  if (range === 'today') {
+    orders = orders.filter((o) => o.daysAway === 0);
+  } else if (range === '7') {
+    orders = orders.filter((o) => o.daysAway !== null && o.daysAway >= 0 && o.daysAway <= 7);
+  } else if (range === 'month') {
+    orders = orders.filter((o) => {
+      if (!o.event) return false;
+      const d = new Date(o.event.date + 'T00:00:00');
+      return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth();
+    });
+  }
+
+  // Soonest first - this is an "upcoming" list, so chronological order by
+  // event/delivery date makes more sense here than by when the order was
+  // created.
+  orders.sort((a, b) => {
+    if (a.daysAway === null) return 1;
+    if (b.daysAway === null) return -1;
+    return a.daysAway - b.daysAway;
+  });
 
   res.render('gift-orders/index', {
     orders,
     filter,
+    range,
     error: req.query.error,
     cancelled: req.query.cancelled === '1',
     skipped: req.query.skipped === '1',
