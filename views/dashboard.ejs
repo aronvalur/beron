@@ -3,8 +3,8 @@
 
   <div class="page-header">
     <div>
-      <h1><%= company.name %></h1>
-      <p class="subtitle">Hér er það sem er framundan hjá starfsfólkinu þínu.</p>
+      <h1><%= greeting(currentUser.name) %>, <%= currentUser.name.split(' ')[0] %></h1>
+      <p class="subtitle"><%= company.name %> &mdash; hér er það sem er framundan hjá starfsfólkinu þínu.</p>
     </div>
     <a href="/gift-orders/custom/new" class="btn">+ Sérpöntun</a>
   </div>

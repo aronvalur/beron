@@ -4,7 +4,7 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 
 const { seedIfEmpty } = require('./db/seed');
-const { formatDate, formatDayMonth } = require('./lib/format');
+const { formatDate, formatDayMonth, greeting } = require('./lib/format');
 const { statusLabel, eventTypeLabel, deliveryPreferenceLabel, roleLabel, leadStatusLabel } = require('./lib/labels');
 
 seedIfEmpty();
@@ -28,6 +28,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Available in every view without routes needing to pass them explicitly
 app.locals.formatDate = formatDate;
 app.locals.formatDayMonth = formatDayMonth;
+app.locals.greeting = greeting;
 app.locals.statusLabel = statusLabel;
 app.locals.eventTypeLabel = eventTypeLabel;
 app.locals.deliveryPreferenceLabel = deliveryPreferenceLabel;
