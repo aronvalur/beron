@@ -13,7 +13,7 @@
 
   <div class="grid grid-3">
     <div class="card stat-card">
-      <div class="stat-value"><%= upcomingEvents.length %></div>
+      <div class="stat-value"><%= birthdayChristmasCount %></div>
       <div class="stat-label">Afmæli og jólagjafir næstu 30 daga</div>
     </div>
     <div class="card stat-card">
@@ -50,10 +50,19 @@
           <% upcomingEvents.forEach(function(ev) { %>
             <tr>
               <td><%= ev.employee ? ev.employee.name : 'Óþekkt' %></td>
-              <td><span class="badge badge-<%= ev.event_type %>"><%= eventTypeLabel(ev.event_type) %></span></td>
+              <td><span class="badge badge-<%= ev.event_type %>"><%= (ev.order && ev.order.occasion) || eventTypeLabel(ev.event_type) %></span></td>
               <td><%= formatDate(ev.date) %></td>
-              <td><strong><%= ev.daysAway === 0 ? 'Í dag' : (ev.daysAway === 1 ? 'Á morgun' : ev.daysAway + ' dagar') %></strong></td>
-              <td><%= ev.employee && ev.employee.birthday_budget ? Number(ev.employee.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td>
+                <% if (ev.daysAway < 0) { %>
+                  <span style="color:var(--text-muted);"><%= Math.abs(ev.daysAway) %> dagar síðan</span>
+                <% } else { %>
+                  <strong><%= ev.daysAway === 0 ? 'Í dag' : (ev.daysAway === 1 ? 'Á morgun' : ev.daysAway + ' dagar') %></strong>
+                <% } %>
+              </td>
+              <td>
+                <% const budget = ev.order ? ev.order.budget_amount : (ev.employee ? ev.employee.birthday_budget : null); %>
+                <%= budget ? Number(budget).toLocaleString('is-IS') + ' kr.' : '—' %>
+              </td>
               <td>
                 <% if (ev.order) { %>
                   <span class="badge badge-<%= ev.order.status %>"><%= statusLabel(ev.order.status) %></span>

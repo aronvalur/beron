@@ -18,10 +18,24 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     store.where('giftOrders', (o) => o.company_id === companyId && o.event_id).map((o) => [o.event_id, o])
   );
 
-  const upcomingEvents = upcomingEventsForCompany(companyId, 30, today)
-    .filter((ev) => ev.event_type === 'birthday' || ev.event_type === 'christmas')
+  // Birthday/Christmas count for the stat card above - a narrower, specific
+  // number ("upcoming automatic gifts"), separate from the table below.
+  const birthdayChristmasCount = upcomingEventsForCompany(companyId, 30, today).filter(
+    (ev) => ev.event_type === 'birthday' || ev.event_type === 'christmas'
+  ).length;
+
+  // The table itself shows everything happening in the next 30 days -
+  // birthdays, Christmas, and sérpöntun alike - including ones that have
+  // since been cancelled/skipped, so HR isn't missing anything by only
+  // seeing "upcoming"-status events.
+  const upcomingEvents = store
+    .where('events', (e) => e.company_id === companyId)
+    .filter((ev) => {
+      const diff = daysBetween(today, new Date(ev.date + 'T00:00:00'));
+      return diff >= -1 && diff <= 30;
+    })
     .map((ev) => {
-      const emp = store.find('employees', ev.employee_id);
+      const emp = ev.employee_id ? store.find('employees', ev.employee_id) : null;
       const diff = daysBetween(today, new Date(ev.date + 'T00:00:00'));
       return Object.assign({}, ev, {
         employee: emp,
@@ -47,6 +61,7 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
   res.render('dashboard', {
     company,
     upcomingEvents,
+    birthdayChristmasCount,
     missingBudgetCount,
     activeEmployeeCount: activeEmployees.length,
     recentOrders,
