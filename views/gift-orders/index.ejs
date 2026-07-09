@@ -46,13 +46,26 @@
     <% } else { %>
       <div class="table-scroll">
       <table>
-        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Fjárhæð</th><th>Staða</th><th>Athugasemd</th><th></th></tr></thead>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Niðurtalning</th><th>Fjárhæð</th><th>Staða pöntunar</th><th>Athugasemd til Beron</th><th></th></tr></thead>
         <tbody>
           <% orders.forEach(function(o) { %>
             <tr>
               <td><%= o.employee ? o.employee.name : '—' %></td>
               <td><span class="badge badge-<%= o.gift_type %>"><%= o.occasion || eventTypeLabel(o.gift_type) %></span></td>
               <td><%= o.event ? formatDate(o.event.date) : '—' %></td>
+              <td>
+                <% if (o.daysAway === null) { %>
+                  <span style="color:var(--text-muted);">—</span>
+                <% } else if (o.daysAway < 0) { %>
+                  <span style="color:var(--text-muted);"><%= Math.abs(o.daysAway) %> dagar síðan</span>
+                <% } else if (o.daysAway === 0) { %>
+                  <strong>Í dag</strong>
+                <% } else if (o.daysAway === 1) { %>
+                  <strong>Á morgun</strong>
+                <% } else { %>
+                  <strong><%= o.daysAway %> dagar</strong>
+                <% } %>
+              </td>
               <td>
                 <%= o.budget_amount ? Number(o.budget_amount).toLocaleString('is-IS') + ' kr.' : '—' %>
                 <% if (o.handling_fee) { %>
