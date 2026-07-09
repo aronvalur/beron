@@ -99,7 +99,8 @@ router.get('/', (req, res) => {
 router.get('/custom/new', (req, res) => {
   const companyId = req.session.user.company_id;
   const employees = store.where('employees', (e) => e.company_id === companyId && e.active);
-  res.render('gift-orders/custom-form', { employees, handlingFee: CUSTOM_HANDLING_FEE });
+  const company = store.find('companies', companyId);
+  res.render('gift-orders/custom-form', { employees, handlingFee: CUSTOM_HANDLING_FEE, company });
 });
 
 router.post('/custom', (req, res) => {

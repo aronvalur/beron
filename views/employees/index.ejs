@@ -33,7 +33,7 @@
               <td><%= formatDayMonth(e.birthday) %></td>
               <td><%= e.department || '—' %></td>
               <td><%= e.birthday_budget ? Number(e.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
-              <td><%= deliveryPreferenceLabel(e.delivery_preference) %></td>
+              <td><%= deliveryPreferenceLabel(e.delivery_preference, company.name) %></td>
               <td><span class="badge badge-<%= e.active ? 'active' : 'inactive' %>"><%= e.active ? 'Virkur' : 'Óvirkur' %></span></td>
               <td>
                 <div class="btn-row">

@@ -11,6 +11,7 @@ router.use(requireLogin, requireCompanyAdmin);
 // gift ordering automatically in the background (see lib/events.js).
 router.get('/', (req, res) => {
   const companyId = req.session.user.company_id;
+  const company = store.find('companies', companyId);
   const today = new Date();
   const range = req.query.range || 'month';
 
@@ -40,7 +41,7 @@ router.get('/', (req, res) => {
 
   rows.sort((a, b) => a.daysAway - b.daysAway);
 
-  res.render('birthdays', { rows, range });
+  res.render('birthdays', { rows, range, company });
 });
 
 module.exports = router;

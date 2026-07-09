@@ -39,7 +39,7 @@
                 </strong>
               </td>
               <td><%= r.employee.birthday_budget ? Number(r.employee.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
-              <td><%= deliveryPreferenceLabel(r.employee.delivery_preference) %></td>
+              <td><%= deliveryPreferenceLabel(r.employee.delivery_preference, company.name) %></td>
             </tr>
           <% }); %>
         </tbody>

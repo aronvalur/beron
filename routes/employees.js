@@ -11,11 +11,13 @@ function scoped(req) {
 
 router.get('/', (req, res) => {
   const employees = scoped(req).sort((a, b) => a.name.localeCompare(b.name));
-  res.render('employees/index', { employees });
+  const company = store.find('companies', req.session.user.company_id);
+  res.render('employees/index', { employees, company });
 });
 
 router.get('/new', (req, res) => {
-  res.render('employees/form', { employee: null });
+  const company = store.find('companies', req.session.user.company_id);
+  res.render('employees/form', { employee: null, company });
 });
 
 router.post('/', (req, res) => {
@@ -41,7 +43,8 @@ router.get('/:id/edit', (req, res) => {
   if (!employee || employee.company_id !== req.session.user.company_id) {
     return res.status(404).render('error', { message: 'Starfsmaður fannst ekki.' });
   }
-  res.render('employees/form', { employee });
+  const company = store.find('companies', req.session.user.company_id);
+  res.render('employees/form', { employee, company });
 });
 
 router.put('/:id', (req, res) => {

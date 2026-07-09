@@ -33,7 +33,7 @@
           <label for="delivery_preference">Afhendingarmáti</label>
           <select id="delivery_preference" name="delivery_preference">
             <option value="to_employee" <%= employee && employee.delivery_preference === 'to_employee' ? 'selected' : '' %>>Heim til starfsmanns</option>
-            <option value="to_hr_office" <%= employee && employee.delivery_preference === 'to_hr_office' ? 'selected' : '' %>>Á skrifstofu starfsmannamála</option>
+            <option value="to_hr_office" <%= employee && employee.delivery_preference === 'to_hr_office' ? 'selected' : '' %>>Á skrifstofu <%= company.name %></option>
           </select>
         </div>
       </div>
