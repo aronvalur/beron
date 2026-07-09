@@ -4,6 +4,7 @@
   --navy-light: #146b52;
   --gold: #7ed957;
   --brand: #16b378;
+  --btn-green: #127f58; /* midpoint between --navy and --brand */
   --bg: #f4f8f6;
   --card: #ffffff;
   --border: #e0e8e3;
@@ -187,7 +188,7 @@ tr:last-child td { border-bottom: none; }
   letter-spacing: -0.01em;
   border: 1px solid transparent;
   cursor: pointer;
-  background: var(--brand);
+  background: var(--btn-green);
   color: #fff;
   white-space: nowrap;
   transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
