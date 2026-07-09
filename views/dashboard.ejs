@@ -37,10 +37,10 @@
   <% } %>
 
   <div class="card">
-    <h2>Næstu 30 dagar</h2>
-    <p style="color:var(--text-muted); font-size:13px; margin:-8px 0 14px;">
-      Beron sér um pöntun og sendingu sjálfkrafa. <a href="/birthdays">Afmælisyfirlit</a> &middot; <a href="/gift-orders">sleppa tilefni</a>
-    </p>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;">
+      <h2 style="margin:0;">Næstu 30 dagar</h2>
+      <a href="/gift-orders" class="btn btn-sm">Öll tilefni</a>
+    </div>
     <% if (upcomingEvents.length === 0) { %>
       <div class="table-empty">Ekkert framundan næstu 30 daga.</div>
     <% } else { %>
