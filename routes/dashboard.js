@@ -49,11 +49,16 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
   const activeEmployees = store.where('employees', (e) => e.company_id === companyId && e.active);
   const missingBudgetCount = activeEmployees.filter((e) => !e.birthday_budget).length;
 
-  const recentOrders = store
-    .where('giftOrders', (o) => o.company_id === companyId)
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 5)
-    .map((o) => Object.assign({}, o, { employee: o.employee_id ? store.find('employees', o.employee_id) : null }));
+  // Fulfillment pipeline breakdown - a different axis from the date-based
+  // "Næstu 30 dagar" table above: this shows where things stand regardless
+  // of when the event happens, so HR can see at a glance how much is still
+  // in progress vs already delivered.
+  const STATUS_ORDER = ['pending', 'ordered', 'shipped', 'delivered', 'cancelled'];
+  const allOrders = store.where('giftOrders', (o) => o.company_id === companyId);
+  const statusCounts = STATUS_ORDER.map((status) => ({
+    status,
+    count: allOrders.filter((o) => o.status === status).length
+  }));
 
   const invoice = computeInvoice(company.subscription_plan, activeEmployees.length);
   const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());
@@ -64,7 +69,7 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     birthdayChristmasCount,
     missingBudgetCount,
     activeEmployeeCount: activeEmployees.length,
-    recentOrders,
+    statusCounts,
     invoice,
     monthBilling,
     error: req.query.error,

@@ -93,25 +93,17 @@
   </div>
 
   <div class="card">
-    <h2>Nýlegar gjafapantanir</h2>
-    <% if (recentOrders.length === 0) { %>
-      <div class="table-empty">Engar gjafapantanir enn.</div>
-    <% } else { %>
-      <table>
-        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Staða</th><th>Skráð</th></tr></thead>
-        <tbody>
-          <% recentOrders.forEach(function(o) { %>
-            <tr>
-              <td><%= o.employee ? o.employee.name : '—' %></td>
-              <td><span class="badge badge-<%= o.gift_type %>"><%= o.occasion || eventTypeLabel(o.gift_type) %></span></td>
-              <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
-              <td><%= formatDate(o.created_at) %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    <% } %>
-    <p style="margin-top:14px;"><a href="/gift-orders">Sjá öll tilefni &rarr;</a></p>
+    <h2>Staða allra gjafapantana</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin:-8px 0 14px;">Hvar pantanir standa í ferlinu, óháð dagsetningu tilefnis.</p>
+    <div style="display:flex; gap:32px; flex-wrap:wrap;">
+      <% statusCounts.forEach(function(s) { %>
+        <div>
+          <div style="font-size:26px; font-weight:800; color:var(--text); line-height:1;"><%= s.count %></div>
+          <span class="badge badge-<%= s.status %>" style="margin-top:8px; display:inline-block;"><%= statusLabel(s.status) %></span>
+        </div>
+      <% }); %>
+    </div>
+    <p style="margin-top:20px;"><a href="/gift-orders">Sjá öll tilefni &rarr;</a></p>
   </div>
 
 <%- include('partials/footer') %>
