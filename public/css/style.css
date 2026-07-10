@@ -247,10 +247,10 @@ tr:last-child td { border-bottom: none; }
 .pipeline-tooltip {
   display: none;
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 10px;
+  margin-bottom: 10px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
