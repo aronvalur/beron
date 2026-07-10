@@ -34,71 +34,64 @@
     </div>
   </div>
 
-  <div class="card">
-    <% if (leads.length === 0) { %>
+  <% if (leads.length === 0) { %>
+    <div class="card">
       <div class="table-empty">Engar fyrirspurnir ennþá.</div>
-    <% } else { %>
-      <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Móttekið</th>
-            <th>Tegund</th>
-            <th>Nafn</th>
-            <th>Fyrirtæki</th>
-            <th>Netfang</th>
-            <th>Sími</th>
-            <th>Fjöldi starfsmanna</th>
-            <th>Skilaboð</th>
-            <th>Staða</th>
-            <th style="min-width:220px;">Svar til stjórnanda</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% leads.forEach(function(l) { %>
-            <tr>
-              <td><%= formatDate(l.created_at) %></td>
-              <td>
-                <% if (l.type === 'support') { %>
-                  <span class="badge badge-custom">Frá stjórnanda</span>
-                <% } else { %>
-                  <span class="badge badge-birthday">Fundarbeiðni</span>
-                <% } %>
-              </td>
-              <td><%= l.name %></td>
-              <td><%= l.company %></td>
-              <td><a href="mailto:<%= l.email %>"><%= l.email %></a></td>
-              <td><% if (l.phone) { %><a href="tel:<%= l.phone %>"><%= l.phone %></a><% } else { %>—<% } %></td>
-              <td><%= l.employee_range || '—' %></td>
-              <td style="max-width:220px; color:var(--text-muted); font-size:13px;"><%= l.message || '—' %></td>
-              <td>
-                <form class="inline" method="POST" action="/superadmin/fyrirspurnir/<%= l.id %>/status">
-                  <select name="status" onchange="this.form.submit()">
-                    <option value="new" <%= l.status === 'new' ? 'selected' : '' %>>Ný fyrirspurn</option>
-                    <option value="contacted" <%= l.status === 'contacted' ? 'selected' : '' %>>Haft samband</option>
-                    <option value="closed" <%= l.status === 'closed' ? 'selected' : '' %>>Lokið</option>
-                  </select>
-                </form>
-              </td>
-              <td>
-                <% if (l.type === 'support') { %>
-                  <form method="POST" action="/superadmin/fyrirspurnir/<%= l.id %>/reply" style="display:flex; flex-direction:column; gap:6px;">
-                    <textarea name="reply" rows="2" placeholder="Skrifaðu svar..." style="font-size:13px; min-width:200px;"><%= l.reply || '' %></textarea>
-                    <button type="submit" class="btn btn-sm btn-secondary" style="align-self:flex-start;">Svara</button>
-                  </form>
-                  <% if (l.reply && l.replied_at) { %>
-                    <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Svarað <%= formatDate(l.replied_at) %></div>
-                  <% } %>
-                <% } else { %>
-                  <span style="font-size:12px; color:var(--text-muted);">—</span>
-                <% } %>
-              </td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-      </div>
-    <% } %>
-  </div>
+    </div>
+  <% } else { %>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <% leads.forEach(function(l) { %>
+        <div class="card" style="padding:18px 20px;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <% if (l.type === 'support') { %>
+                <span class="badge badge-custom">Frá stjórnanda</span>
+              <% } else { %>
+                <span class="badge badge-birthday">Fundarbeiðni</span>
+              <% } %>
+              <strong><%= l.name %></strong>
+              <span style="color:var(--text-muted);">&middot; <%= l.company %></span>
+              <span style="font-size:12.5px; color:var(--text-muted);"><%= formatDate(l.created_at) %></span>
+            </div>
+            <form class="inline" method="POST" action="/superadmin/fyrirspurnir/<%= l.id %>/status">
+              <select name="status" onchange="this.form.submit()">
+                <option value="new" <%= l.status === 'new' ? 'selected' : '' %>>Ný fyrirspurn</option>
+                <option value="contacted" <%= l.status === 'contacted' ? 'selected' : '' %>>Haft samband</option>
+                <option value="closed" <%= l.status === 'closed' ? 'selected' : '' %>>Lokið</option>
+              </select>
+            </form>
+          </div>
+
+          <div style="display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+            <span><a href="mailto:<%= l.email %>"><%= l.email %></a></span>
+            <% if (l.phone) { %><span><a href="tel:<%= l.phone %>"><%= l.phone %></a></span><% } %>
+            <% if (l.employee_range) { %><span><%= l.employee_range %> starfsmenn</span><% } %>
+          </div>
+
+          <div style="font-size:14px; padding:12px 14px; background:var(--bg); border-radius:8px;">
+            <%= l.message || '—' %>
+          </div>
+
+          <% if (l.type === 'support') { %>
+            <% if (l.reply) { %>
+              <div style="margin-top:12px; padding:10px 14px; background:var(--success-bg); border-radius:8px; border-left:3px solid var(--brand);">
+                <div style="font-size:11.5px; font-weight:800; color:var(--brand); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">
+                  Þitt svar<% if (l.replied_at) { %> &middot; <%= formatDate(l.replied_at) %><% } %>
+                </div>
+                <div style="font-size:14px;"><%= l.reply %></div>
+              </div>
+            <% } %>
+            <form method="POST" action="/superadmin/fyrirspurnir/<%= l.id %>/reply" style="margin-top:12px; display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+              <div class="field" style="flex:1; min-width:260px; margin-bottom:0;">
+                <label><%= l.reply ? 'Uppfæra svar' : 'Svara' %></label>
+                <textarea name="reply" rows="2" placeholder="Skrifaðu svar til stjórnandans..."><%= l.reply || '' %></textarea>
+              </div>
+              <button type="submit" class="btn btn-sm"><%= l.reply ? 'Uppfæra svar' : 'Senda svar' %></button>
+            </form>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
 
 <%- include('../partials/footer') %>
