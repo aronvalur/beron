@@ -4,6 +4,7 @@ const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
 const { runDailyWorkflows, upcomingEventsForCompany, daysBetween, NOTE_CUTOFF_DAYS } = require('../lib/events');
 const { computeInvoice } = require('../lib/pricing');
 const { billingForCompanyMonth } = require('../lib/billing');
+const { eventTypeLabel } = require('../lib/labels');
 
 const router = express.Router();
 
@@ -55,10 +56,18 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
   // in progress vs already delivered.
   const STATUS_ORDER = ['pending', 'ordered', 'shipped', 'delivered', 'cancelled'];
   const allOrders = store.where('giftOrders', (o) => o.company_id === companyId);
-  const statusCounts = STATUS_ORDER.map((status) => ({
-    status,
-    count: allOrders.filter((o) => o.status === status).length
-  }));
+  const statusCounts = STATUS_ORDER.map((status) => {
+    const orders = allOrders
+      .filter((o) => o.status === status)
+      .map((o) => {
+        const emp = o.employee_id ? store.find('employees', o.employee_id) : null;
+        return {
+          name: emp ? emp.name : 'Óþekkt',
+          typeLabel: o.occasion || eventTypeLabel(o.gift_type)
+        };
+      });
+    return { status, count: orders.length, orders };
+  });
 
   const invoice = computeInvoice(company.subscription_plan, activeEmployees.length);
   const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());

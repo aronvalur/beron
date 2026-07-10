@@ -217,6 +217,7 @@ tr:last-child td { border-bottom: none; }
   align-items: center;
   padding-left: 24px;
   border-left: 1px dashed var(--border);
+  position: relative;
 }
 .pipeline-dot {
   width: 54px;
@@ -231,8 +232,52 @@ tr:last-child td { border-bottom: none; }
   z-index: 1;
   border: 3px solid var(--card);
   box-shadow: 0 0 0 1px var(--border);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .pipeline-dot.is-empty { background: #eef1ef; color: var(--text-muted); box-shadow: 0 0 0 1px var(--border); }
+.pipeline-step:has(.pipeline-tooltip):hover .pipeline-dot,
+.pipeline-aside:has(.pipeline-tooltip):hover .pipeline-dot {
+  cursor: pointer;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 1px var(--border), 0 4px 10px rgba(13, 74, 56, 0.18);
+}
+
+/* Hover tooltip listing the actual orders behind a pipeline count */
+.pipeline-tooltip {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(13, 74, 56, 0.16);
+  padding: 12px 14px;
+  min-width: 200px;
+  max-width: 260px;
+  max-height: 220px;
+  overflow-y: auto;
+  text-align: left;
+  z-index: 20;
+}
+.pipeline-step:hover .pipeline-tooltip,
+.pipeline-aside:hover .pipeline-tooltip {
+  display: block;
+}
+.pipeline-tooltip-title {
+  font-size: 12px; font-weight: 800; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.03em;
+  margin-bottom: 8px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.pipeline-tooltip ul { list-style: none; margin: 0; padding: 0; }
+.pipeline-tooltip li {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  padding: 4px 0; white-space: nowrap;
+}
+.pipeline-tooltip li span { font-weight: 500; color: var(--text-muted); }
 .pipeline-dot-pending { background: var(--warn-bg); color: var(--warn); }
 .pipeline-dot-ordered { background: var(--info-bg); color: var(--info); }
 .pipeline-dot-shipped { background: var(--info-bg); color: var(--info); }

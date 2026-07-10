@@ -102,6 +102,16 @@
           <div class="pipeline-step">
             <div class="pipeline-dot pipeline-dot-<%= s.status %> <%= s.count === 0 ? 'is-empty' : '' %>"><%= s.count %></div>
             <div class="pipeline-label"><%= statusLabel(s.status) %></div>
+            <% if (s.count > 0) { %>
+              <div class="pipeline-tooltip">
+                <div class="pipeline-tooltip-title"><%= statusLabel(s.status) %> (<%= s.count %>)</div>
+                <ul>
+                  <% s.orders.forEach(function(o) { %>
+                    <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
+                  <% }); %>
+                </ul>
+              </div>
+            <% } %>
           </div>
         <% }); %>
       </div>
@@ -110,10 +120,18 @@
       <div class="pipeline-aside">
         <div class="pipeline-dot pipeline-dot-cancelled <%= cancelled.count === 0 ? 'is-empty' : '' %>"><%= cancelled.count %></div>
         <div class="pipeline-label"><%= statusLabel(cancelled.status) %></div>
+        <% if (cancelled.count > 0) { %>
+          <div class="pipeline-tooltip">
+            <div class="pipeline-tooltip-title"><%= statusLabel(cancelled.status) %> (<%= cancelled.count %>)</div>
+            <ul>
+              <% cancelled.orders.forEach(function(o) { %>
+                <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } %>
       </div>
     </div>
-
-    <p style="margin-top:24px;"><a href="/gift-orders">Sjá öll tilefni &rarr;</a></p>
   </div>
 
 <%- include('partials/footer') %>
