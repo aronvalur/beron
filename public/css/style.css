@@ -232,13 +232,12 @@ tr:last-child td { border-bottom: none; }
   z-index: 1;
   border: 3px solid var(--card);
   box-shadow: 0 0 0 1px var(--border);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease;
 }
 .pipeline-dot.is-empty { background: #eef1ef; color: var(--text-muted); box-shadow: 0 0 0 1px var(--border); }
 .pipeline-step:has(.pipeline-tooltip):hover .pipeline-dot,
 .pipeline-aside:has(.pipeline-tooltip):hover .pipeline-dot {
   cursor: pointer;
-  transform: scale(1.08);
   box-shadow: 0 0 0 1px var(--border), 0 4px 10px rgba(13, 74, 56, 0.18);
 }
 
