@@ -17,7 +17,8 @@ router.get('/', (req, res) => {
     admins,
     maxAdmins: MAX_ADMINS,
     error: req.query.error,
-    saved: req.query.saved
+    saved: req.query.saved,
+    sent: req.query.sent
   });
 });
 
@@ -80,6 +81,33 @@ router.post('/password', (req, res) => {
 
   store.update('users', userId, { password_hash: bcrypt.hashSync(newPassword, 10) });
   res.redirect('/settings?saved=1');
+});
+
+// Lets a company contact send a message straight to Beron HQ - shows up on
+// /superadmin/fyrirspurnir alongside the "Bóka fund" leads, filed under its
+// own type so Beron HQ can tell the two apart.
+router.post('/support', (req, res) => {
+  const companyId = req.session.user.company_id;
+  const company = store.find('companies', companyId);
+  const message = (req.body.message || '').trim();
+
+  if (!message) {
+    return res.redirect('/settings?error=' + encodeURIComponent('Skrifaðu skilaboð áður en þú sendir.'));
+  }
+
+  store.insert('meetingRequests', {
+    type: 'support',
+    name: req.session.user.name,
+    company: company.name,
+    email: req.session.user.email,
+    phone: '',
+    employee_range: '',
+    message,
+    status: 'new',
+    company_id: companyId
+  });
+
+  res.redirect('/settings?sent=1');
 });
 
 router.post('/admins/:id/remove', (req, res) => {

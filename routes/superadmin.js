@@ -286,13 +286,16 @@ router.post('/orders/:id/status', (req, res) => {
   res.redirect('/superadmin/orders');
 });
 
-// "Bóka fund" leads submitted from the public marketing site - newest first
-// so Beron HQ always sees who still needs a follow-up call.
+// "Bóka fund" leads from the public marketing site, and support messages
+// company admins send in from Stillingar - newest first so Beron HQ always
+// sees who still needs a follow-up.
 router.get('/fyrirspurnir', (req, res) => {
   const status = req.query.status || 'all';
+  const type = req.query.type || 'all';
   let leads = store.all('meetingRequests').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   if (status !== 'all') leads = leads.filter((l) => l.status === status);
-  res.render('superadmin/leads', { leads, status });
+  if (type !== 'all') leads = leads.filter((l) => (l.type || 'lead') === type);
+  res.render('superadmin/leads', { leads, status, type });
 });
 
 router.post('/fyrirspurnir/:id/status', (req, res) => {

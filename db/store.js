@@ -135,6 +135,19 @@ function ensureSchema() {
       status TEXT
     );
   `);
+
+  // Older databases were created before "type"/"company_id" existed on
+  // meeting_requests (back when it only held "Bóka fund" leads from the
+  // marketing site). Add them here if missing, instead of relying on
+  // CREATE TABLE IF NOT EXISTS, which never alters an existing table.
+  const columns = db.prepare('PRAGMA table_info(meeting_requests)').all().map((c) => c.name);
+  if (!columns.includes('type')) {
+    db.exec("ALTER TABLE meeting_requests ADD COLUMN type TEXT DEFAULT 'lead'");
+    db.exec("UPDATE meeting_requests SET type = 'lead' WHERE type IS NULL");
+  }
+  if (!columns.includes('company_id')) {
+    db.exec('ALTER TABLE meeting_requests ADD COLUMN company_id INTEGER');
+  }
 }
 
 ensureSchema();
