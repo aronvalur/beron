@@ -303,27 +303,36 @@ tr:last-child td { border-bottom: none; }
   padding: 4px 0; white-space: nowrap;
 }
 .pipeline-tooltip li span { font-weight: 500; color: var(--text-muted); }
-/* Fade + hint at the bottom, only rendered when the list is long enough to
-   actually scroll - a clear "there's more below" cue that doesn't depend on
-   the browser/OS choosing to show a visible scrollbar. */
+/* Hint at the bottom, only rendered when the list is long enough to
+   actually scroll - a solid, unmissable pill badge (not just faint text)
+   so it doesn't depend on the browser/OS choosing to show a scrollbar. */
 .pipeline-tooltip.has-more {
-  padding-bottom: 22px;
+  padding-bottom: 26px;
+}
+.pipeline-tooltip.has-more::before {
+  content: '';
+  position: absolute;
+  left: 1px; right: 1px; bottom: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), var(--card) 70%);
+  border-radius: 0 0 9px 9px;
+  pointer-events: none;
 }
 .pipeline-tooltip.has-more::after {
-  content: '\25BE Fleiri';
+  content: 'Skrunaðu fyrir fleiri \25BE';
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 26px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 4px;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  background: var(--brand);
+  color: #fff;
   font-size: 10.5px;
   font-weight: 800;
-  color: var(--brand);
-  letter-spacing: 0.02em;
-  background: linear-gradient(to bottom, rgba(255,255,255,0), var(--card) 65%);
-  border-radius: 0 0 9px 9px;
+  letter-spacing: 0.01em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(13, 74, 56, 0.3);
+  white-space: nowrap;
   pointer-events: none;
 }
 .pipeline-dot-pending { background: var(--warn-bg); color: var(--warn); }
