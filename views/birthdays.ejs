@@ -4,47 +4,44 @@
   <div class="page-header">
     <div>
       <h1>Afmæli</h1>
-      <p class="subtitle">Bara til að halda þér upplýstri — Beron sér um gjafirnar sjálfkrafa.</p>
+      <p class="subtitle">Bara til að halda þér upplýstri &mdash; Beron sér um gjafirnar sjálfkrafa. Nánari upplýsingar (staða, fjárhæð, afhending) eru á Öll tilefni.</p>
     </div>
   </div>
 
-  <div class="filters">
-    <a href="/birthdays?range=month" class="<%= range === 'month' ? 'active' : '' %>">Þessi mánuður</a>
-    <a href="/birthdays?range=30" class="<%= range === '30' ? 'active' : '' %>">Næstu 30 dagar</a>
-    <a href="/birthdays?range=90" class="<%= range === '90' ? 'active' : '' %>">Næstu 90 dagar</a>
-    <a href="/birthdays?range=all" class="<%= range === 'all' ? 'active' : '' %>">Allir</a>
+  <div class="calendar-header">
+    <div class="calendar-nav">
+      <a href="/birthdays?month=<%= prevMonthParam %>" class="btn btn-sm btn-secondary" aria-label="Fyrri mánuður">&larr;</a>
+      <h2><%= monthLabel %></h2>
+      <a href="/birthdays?month=<%= nextMonthParam %>" class="btn btn-sm btn-secondary" aria-label="Næsti mánuður">&rarr;</a>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <span style="font-size:13px; color:var(--text-muted); font-weight:700;"><%= birthdaysThisMonth %> afmæli í <%= monthLabel.split(' ')[0] %></span>
+      <% if (!isCurrentMonthView) { %>
+        <a href="/birthdays?month=<%= todayMonthParam %>" class="btn btn-sm">Í dag</a>
+      <% } %>
+    </div>
   </div>
 
   <div class="card">
-    <% if (rows.length === 0) { %>
-      <div class="empty-state">
-        <h3>Ekkert að sjá hér</h3>
-        <p>Prófaðu víðara tímabil, eða bættu við afmælum á starfsmannasíðunni.</p>
-      </div>
-    <% } else { %>
-      <table>
-        <thead><tr><th>Starfsmaður</th><th>Deild</th><th>Dagsetning</th><th>Niðurtalning</th><th>Fjárhæð</th><th>Afhending</th></tr></thead>
-        <tbody>
-          <% rows.forEach(function(r) { %>
-            <tr>
-              <td><%= r.employee.name %></td>
-              <td><%= r.employee.department || '—' %></td>
-              <td><%= formatDate(r.date) %></td>
-              <td>
-                <strong>
-                  <% if (r.daysAway === 0) { %>Í dag
-                  <% } else if (r.daysAway > 0) { %><%= r.daysAway %> dagar
-                  <% } else { %><%= Math.abs(r.daysAway) %> dagar síðan
-                  <% } %>
-                </strong>
-              </td>
-              <td><%= r.employee.birthday_budget ? Number(r.employee.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
-              <td><%= deliveryPreferenceLabel(r.employee.delivery_preference, company.name) %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    <% } %>
+    <div class="calendar-weekdays">
+      <div>Mán</div><div>Þri</div><div>Mið</div><div>Fim</div><div>Fös</div><div>Lau</div><div>Sun</div>
+    </div>
+    <div class="calendar-grid">
+      <% weeks.forEach(function(week) { %>
+        <% week.forEach(function(day) { %>
+          <div class="calendar-day <%= day.isCurrentMonth ? '' : 'is-other-month' %> <%= day.isToday ? 'is-today' : '' %>">
+            <div class="calendar-day-number"><%= day.dayNumber %></div>
+            <% if (day.birthdays.length > 0) { %>
+              <div class="calendar-chips">
+                <% day.birthdays.forEach(function(e) { %>
+                  <span class="birthday-chip" title="<%= e.name %><% if (e.department) { %> &middot; <%= e.department %><% } %>"><%= e.name %></span>
+                <% }); %>
+              </div>
+            <% } %>
+          </div>
+        <% }); %>
+      <% }); %>
+    </div>
   </div>
 
 <%- include('partials/footer') %>
