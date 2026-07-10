@@ -11,6 +11,7 @@
         <a href="/employees" class="<%= currentPath.startsWith('/employees') ? 'active' : '' %>">Starfsmenn</a>
         <a href="/gift-orders" class="<%= currentPath.startsWith('/gift-orders') ? 'active' : '' %>">Öll tilefni</a>
         <a href="/billing" class="<%= currentPath.startsWith('/billing') ? 'active' : '' %>">Áskrift og greiðslur</a>
+        <a href="/fyrirspurnir" class="<%= currentPath.startsWith('/fyrirspurnir') ? 'active' : '' %>">Fyrirspurnir</a>
         <a href="/settings" class="<%= currentPath.startsWith('/settings') ? 'active' : '' %>">Stillingar</a>
       </nav>
     <% } else if (currentUser && currentUser.role === 'superadmin') { %>

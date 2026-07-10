@@ -16,6 +16,7 @@ const birthdayRoutes = require('./routes/birthdays');
 const employeeRoutes = require('./routes/employees');
 const giftOrderRoutes = require('./routes/giftOrders');
 const billingRoutes = require('./routes/billing');
+const inquiryRoutes = require('./routes/inquiries');
 const settingsRoutes = require('./routes/settings');
 const superadminRoutes = require('./routes/superadmin');
 
@@ -65,6 +66,7 @@ app.use('/employees', employeeRoutes);
 app.get('/events', (req, res) => res.redirect('/gift-orders'));
 app.use('/gift-orders', giftOrderRoutes);
 app.use('/billing', billingRoutes);
+app.use('/fyrirspurnir', inquiryRoutes);
 app.use('/settings', settingsRoutes);
 app.use('/superadmin', superadminRoutes);
 

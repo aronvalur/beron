@@ -9,7 +9,6 @@
   </div>
 
   <% if (saved) { %><div class="alert alert-success">Vistað.</div><% } %>
-  <% if (sent) { %><div class="alert alert-success">Sent - Beron hefur samband fljótlega.</div><% } %>
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
   <div class="grid grid-2">
@@ -55,18 +54,6 @@
         <input type="password" id="confirm_password" name="confirm_password" required minlength="6" autocomplete="new-password">
       </div>
       <button type="submit" class="btn">Uppfæra lykilorð</button>
-    </form>
-  </div>
-
-  <div class="card">
-    <h2>Hafa samband við Beron</h2>
-    <p class="subtitle" style="margin-top:-6px;">Spurning, athugasemd eða vandamál? Sendu okkur línu - hún berst beint til Beron.</p>
-    <form method="POST" action="/settings/support" style="max-width:520px;">
-      <div class="field">
-        <label for="support_message">Skilaboð</label>
-        <textarea id="support_message" name="message" rows="4" required placeholder="Skrifaðu fyrirspurnina þína hér..."></textarea>
-      </div>
-      <button type="submit" class="btn">Senda fyrirspurn</button>
     </form>
   </div>
 
