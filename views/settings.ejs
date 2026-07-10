@@ -64,9 +64,18 @@
       <tbody>
         <% admins.forEach(function(a) { %>
           <tr>
-            <td><%= a.name %></td>
+            <td><%= a.name %><% if (a.id === currentUser.id) { %> <span class="hint" style="font-weight:600; color:var(--text-muted);">(þú)</span><% } %></td>
             <td><%= a.email %></td>
-            <td><% if (a.phone) { %><a href="tel:<%= a.phone %>"><%= a.phone %></a><% } else { %>—<% } %></td>
+            <td>
+              <% if (a.id === currentUser.id) { %>
+                <form class="inline" method="POST" action="/settings/my-phone" style="display:flex; gap:6px;">
+                  <input type="tel" name="phone" value="<%= a.phone || '' %>" placeholder="Bæta við síma" style="width:150px;">
+                  <button type="submit" class="btn btn-sm btn-secondary">Vista</button>
+                </form>
+              <% } else if (a.phone) { %>
+                <a href="tel:<%= a.phone %>"><%= a.phone %></a>
+              <% } else { %>—<% } %>
+            </td>
             <td>
               <% if (admins.length > 1) { %>
                 <form class="inline" method="POST" action="/settings/admins/<%= a.id %>/remove" onsubmit="return confirm('Fjarlægja þennan tengilið?');">

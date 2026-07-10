@@ -83,6 +83,15 @@ router.post('/password', (req, res) => {
   res.redirect('/settings?saved=1');
 });
 
+// Lets the logged-in contact set/update their own phone number - separate
+// from adding a brand new tengiliður, since this only ever touches your own
+// row (req.session.user.id), not anyone else's.
+router.post('/my-phone', (req, res) => {
+  const userId = req.session.user.id;
+  store.update('users', userId, { phone: (req.body.phone || '').trim() });
+  res.redirect('/settings?saved=1');
+});
+
 router.post('/admins/:id/remove', (req, res) => {
   const companyId = req.session.user.company_id;
   const target = store.find('users', req.params.id);
