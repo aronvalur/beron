@@ -15,9 +15,16 @@
       const params = [];
       if (s && s !== 'all') params.push('status=' + s);
       if (t && t !== 'all') params.push('type=' + t);
+      if (q) params.push('q=' + encodeURIComponent(q));
       return '/superadmin/fyrirspurnir' + (params.length ? '?' + params.join('&') : '');
     }
   %>
+
+  <form method="GET" action="/superadmin/fyrirspurnir" class="search-bar">
+    <input type="hidden" name="status" value="<%= status %>">
+    <input type="hidden" name="type" value="<%= type %>">
+    <input type="text" name="q" value="<%= q %>" placeholder="Leita eftir nafni, fyrirtæki, netfangi eða skilaboðum..." autocomplete="off">
+  </form>
 
   <div class="filters">
     <a href="<%= fyrirspurnirUrl(undefined, 'all') %>" class="<%= type === 'all' ? 'active' : '' %>">Allar tegundir</a>
@@ -36,7 +43,7 @@
 
   <% if (leads.length === 0) { %>
     <div class="card">
-      <div class="table-empty">Engar fyrirspurnir ennþá.</div>
+      <div class="table-empty"><%= q ? 'Engar fyrirspurnir fundust fyrir "' + q + '".' : 'Engar fyrirspurnir ennþá.' %></div>
     </div>
   <% } else { %>
     <div style="display:flex; flex-direction:column; gap:14px;">

@@ -293,6 +293,7 @@ router.post('/orders/:id/status', (req, res) => {
 router.get('/fyrirspurnir', (req, res) => {
   const status = req.query.status || 'all';
   const type = req.query.type || 'all';
+  const q = (req.query.q || '').trim();
   let leads = store.all('meetingRequests').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   if (status !== 'all') leads = leads.filter((l) => l.status === status);
   if (type !== 'all') leads = leads.filter((l) => (l.type || 'lead') === type);
@@ -305,7 +306,23 @@ router.get('/fyrirspurnir', (req, res) => {
     return Object.assign({}, l, { messages });
   });
 
-  res.render('superadmin/leads', { leads, status, type });
+  if (q) {
+    const needle = q.toLowerCase();
+    leads = leads.filter((l) => {
+      const haystack = [
+        l.name,
+        l.company,
+        l.email,
+        l.message,
+        l.type === 'support' ? (l.messages || []).map((m) => m.body).join(' ') : ''
+      ]
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(needle);
+    });
+  }
+
+  res.render('superadmin/leads', { leads, status, type, q });
 });
 
 router.post('/fyrirspurnir/:id/status', (req, res) => {
