@@ -243,6 +243,20 @@ tr:last-child td { border-bottom: none; }
   box-shadow: 0 0 0 1px var(--border), 0 4px 10px rgba(13, 74, 56, 0.18);
 }
 
+/* Invisible bridge over the gap between the dot and the tooltip above it,
+   so moving the mouse from the dot up into the tooltip's list doesn't
+   briefly leave the hoverable area and close the tooltip early. */
+.pipeline-step:has(.pipeline-tooltip)::before,
+.pipeline-aside:has(.pipeline-tooltip)::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  height: 16px;
+}
+
 /* Hover tooltip listing the actual orders behind a pipeline count */
 .pipeline-tooltip {
   display: none;
