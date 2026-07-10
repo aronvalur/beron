@@ -95,15 +95,25 @@
   <div class="card">
     <h2>Staða allra gjafapantana</h2>
     <p style="color:var(--text-muted); font-size:13px; margin:-8px 0 14px;">Hvar pantanir standa í ferlinu, óháð dagsetningu tilefnis.</p>
-    <div style="display:flex; gap:32px; flex-wrap:wrap;">
-      <% statusCounts.forEach(function(s) { %>
-        <div>
-          <div style="font-size:26px; font-weight:800; color:var(--text); line-height:1;"><%= s.count %></div>
-          <span class="badge badge-<%= s.status %>" style="margin-top:8px; display:inline-block;"><%= statusLabel(s.status) %></span>
-        </div>
-      <% }); %>
+
+    <div class="status-pipeline-row">
+      <div class="pipeline">
+        <% statusCounts.slice(0, 4).forEach(function(s) { %>
+          <div class="pipeline-step">
+            <div class="pipeline-dot pipeline-dot-<%= s.status %> <%= s.count === 0 ? 'is-empty' : '' %>"><%= s.count %></div>
+            <div class="pipeline-label"><%= statusLabel(s.status) %></div>
+          </div>
+        <% }); %>
+      </div>
+
+      <% const cancelled = statusCounts[4]; %>
+      <div class="pipeline-aside">
+        <div class="pipeline-dot pipeline-dot-cancelled <%= cancelled.count === 0 ? 'is-empty' : '' %>"><%= cancelled.count %></div>
+        <div class="pipeline-label"><%= statusLabel(cancelled.status) %></div>
+      </div>
     </div>
-    <p style="margin-top:20px;"><a href="/gift-orders">Sjá öll tilefni &rarr;</a></p>
+
+    <p style="margin-top:24px;"><a href="/gift-orders">Sjá öll tilefni &rarr;</a></p>
   </div>
 
 <%- include('partials/footer') %>

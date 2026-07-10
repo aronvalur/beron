@@ -179,6 +179,77 @@ tr:last-child td { border-bottom: none; }
 .badge-contacted { background: var(--info-bg); color: var(--info); }
 .badge-closed { background: var(--success-bg); color: var(--success); }
 
+/* Fulfillment pipeline "timeline" on the HR dashboard - a row of connected
+   steps (pending -> ordered -> shipped -> delivered), with "cancelled" set
+   apart to the side since it's an exit state, not a step in the flow. */
+.status-pipeline-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.pipeline {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 280px;
+}
+.pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+.pipeline-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 27px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.pipeline-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 24px;
+  border-left: 1px dashed var(--border);
+}
+.pipeline-dot {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+  border: 3px solid var(--card);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.pipeline-dot.is-empty { background: #eef1ef; color: var(--text-muted); box-shadow: 0 0 0 1px var(--border); }
+.pipeline-dot-pending { background: var(--warn-bg); color: var(--warn); }
+.pipeline-dot-ordered { background: var(--info-bg); color: var(--info); }
+.pipeline-dot-shipped { background: var(--info-bg); color: var(--info); }
+.pipeline-dot-delivered { background: var(--success-bg); color: var(--success); }
+.pipeline-dot-cancelled { background: var(--danger-bg); color: var(--danger); }
+.pipeline-label {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+}
+@media (max-width: 700px) {
+  .pipeline { flex-wrap: wrap; }
+  .pipeline-step:not(:last-child)::after { display: none; }
+}
+
 .btn {
   display: inline-block;
   padding: 9px 16px;
