@@ -288,13 +288,23 @@ router.post('/orders/:id/status', (req, res) => {
 
 // "Bóka fund" leads from the public marketing site, and support messages
 // company admins send in from Stillingar - newest first so Beron HQ always
-// sees who still needs a follow-up.
+// sees who still needs a follow-up. Support fyrirspurnir carry their full
+// back-and-forth thread along so the page can render them like a chat.
 router.get('/fyrirspurnir', (req, res) => {
   const status = req.query.status || 'all';
   const type = req.query.type || 'all';
   let leads = store.all('meetingRequests').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   if (status !== 'all') leads = leads.filter((l) => l.status === status);
   if (type !== 'all') leads = leads.filter((l) => (l.type || 'lead') === type);
+
+  leads = leads.map((l) => {
+    if (l.type !== 'support') return l;
+    const messages = store
+      .where('inquiryMessages', (m) => m.meeting_request_id === l.id)
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    return Object.assign({}, l, { messages });
+  });
+
   res.render('superadmin/leads', { leads, status, type });
 });
 
@@ -308,17 +318,21 @@ router.post('/fyrirspurnir/:id/status', (req, res) => {
   res.redirect(req.get('referer') || '/superadmin/fyrirspurnir');
 });
 
-// Beron HQ's reply to a support fyrirspurn - shown back to the company
-// contact on their own /fyrirspurnir page. Marks the request "contacted"
-// automatically unless it's already closed.
+// Beron HQ's reply to a support fyrirspurn - added to the thread and shown
+// back to the company contact on their own /fyrirspurnir page. Marks the
+// request "contacted" automatically unless it's already closed.
 router.post('/fyrirspurnir/:id/reply', (req, res) => {
   const lead = store.find('meetingRequests', req.params.id);
   if (!lead) return res.status(404).render('error', { message: 'Fyrirspurn fannst ekki.' });
-  const reply = (req.body.reply || '').trim();
+  const body = (req.body.reply || '').trim();
+  if (!body) return res.redirect(req.get('referer') || '/superadmin/fyrirspurnir');
 
+  store.insert('inquiryMessages', {
+    meeting_request_id: lead.id,
+    sender: 'beron',
+    body
+  });
   store.update('meetingRequests', lead.id, {
-    reply,
-    replied_at: new Date().toISOString(),
     status: lead.status === 'closed' ? 'closed' : 'contacted'
   });
 

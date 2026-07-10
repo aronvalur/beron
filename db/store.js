@@ -33,7 +33,8 @@ const TABLES = {
   events: 'events',
   giftOrders: 'gift_orders',
   subscriptions: 'subscriptions',
-  meetingRequests: 'meeting_requests'
+  meetingRequests: 'meeting_requests',
+  inquiryMessages: 'inquiry_messages'
 };
 
 // Columns that are real booleans in JS but stored as 0/1 in SQLite (which has
@@ -153,6 +154,43 @@ function ensureSchema() {
   }
   if (!columns.includes('replied_at')) {
     db.exec('ALTER TABLE meeting_requests ADD COLUMN replied_at TEXT');
+  }
+
+  // Full back-and-forth thread for "Frá stjórnendum" support fyrirspurnir -
+  // replaces the single reply/replied_at fields above (kept for old rows)
+  // with an actual chat: any number of messages, either side.
+  const inquiryTableExisted = db
+    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='inquiry_messages'")
+    .get();
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS inquiry_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL,
+      meeting_request_id INTEGER NOT NULL,
+      sender TEXT NOT NULL,
+      body TEXT
+    );
+  `);
+
+  if (!inquiryTableExisted) {
+    // One-time backfill so support fyrirspurnir sent before the chat feature
+    // existed still show their original message (and Beron's old reply, if
+    // any) as the start of the thread instead of just disappearing.
+    const supportRequests = db
+      .prepare("SELECT * FROM meeting_requests WHERE type = 'support'")
+      .all();
+    supportRequests.forEach((r) => {
+      if (r.message) {
+        db.prepare(
+          'INSERT INTO inquiry_messages (created_at, meeting_request_id, sender, body) VALUES (?, ?, ?, ?)'
+        ).run(r.created_at, r.id, 'company', r.message);
+      }
+      if (r.reply) {
+        db.prepare(
+          'INSERT INTO inquiry_messages (created_at, meeting_request_id, sender, body) VALUES (?, ?, ?, ?)'
+        ).run(r.replied_at || r.created_at, r.id, 'beron', r.reply);
+      }
+    });
   }
 }
 
