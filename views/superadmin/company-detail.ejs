@@ -51,12 +51,13 @@
   <div class="card">
     <h2>Tengiliðir</h2>
     <table>
-      <thead><tr><th>Nafn</th><th>Netfang</th><th>Lykilorð gleymt?</th></tr></thead>
+      <thead><tr><th>Nafn</th><th>Netfang</th><th>Sími</th><th>Lykilorð gleymt?</th></tr></thead>
       <tbody>
         <% admins.forEach(function(a) { %>
           <tr>
             <td><%= a.name %></td>
             <td><%= a.email %></td>
+            <td><% if (a.phone) { %><a href="tel:<%= a.phone %>"><%= a.phone %></a><% } else { %>—<% } %></td>
             <td>
               <form class="inline note-form" method="POST" action="/superadmin/companies/<%= company.id %>/admins/<%= a.id %>/reset-password"
                     onsubmit="return confirm('Endurstilla lykilorð fyrir ' + '<%= a.email %>' + '?');">

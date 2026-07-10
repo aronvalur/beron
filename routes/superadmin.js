@@ -65,13 +65,14 @@ router.post('/companies', (req, res) => {
   const plan = PLANS[b.subscription_plan] ? b.subscription_plan : 'birthdays';
   const contactName = (b.contact_name || '').trim();
   const contactEmail = (b.contact_email || '').trim();
+  const contactPhone = (b.contact_phone || '').trim();
   const password = (b.password || '').trim() || 'beron123';
 
   if (!name || !contactName || !contactEmail) {
     return res.status(400).render('superadmin/company-new', {
       PLANS,
       error: 'Nafn fyrirtækis, nafn tengiliðar og netfang tengiliðar eru nauðsynleg.',
-      formValues: { name, kennitala, billing_email: billingEmail, billing_address: billingAddress, subscription_plan: plan, contact_name: contactName, contact_email: contactEmail }
+      formValues: { name, kennitala, billing_email: billingEmail, billing_address: billingAddress, subscription_plan: plan, contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone }
     });
   }
 
@@ -80,7 +81,7 @@ router.post('/companies', (req, res) => {
     return res.status(400).render('superadmin/company-new', {
       PLANS,
       error: 'Þetta netfang er þegar í notkun.',
-      formValues: { name, kennitala, billing_email: billingEmail, billing_address: billingAddress, subscription_plan: plan, contact_name: contactName, contact_email: contactEmail }
+      formValues: { name, kennitala, billing_email: billingEmail, billing_address: billingAddress, subscription_plan: plan, contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone }
     });
   }
 
@@ -106,6 +107,7 @@ router.post('/companies', (req, res) => {
   store.insert('users', {
     name: contactName,
     email: contactEmail,
+    phone: contactPhone,
     password_hash: bcrypt.hashSync(password, 10),
     role: 'admin',
     company_id: company.id

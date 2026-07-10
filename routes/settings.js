@@ -49,6 +49,7 @@ router.post('/admins', (req, res) => {
   store.insert('users', {
     name: req.body.name,
     email: req.body.email,
+    phone: (req.body.phone || '').trim(),
     password_hash: hash,
     role: 'admin',
     company_id: companyId

@@ -156,6 +156,13 @@ function ensureSchema() {
     db.exec('ALTER TABLE meeting_requests ADD COLUMN replied_at TEXT');
   }
 
+  // Contacts didn't used to have a phone number on file - added so Beron HQ
+  // has a way to reach a company contact besides email.
+  const userColumns = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+  if (!userColumns.includes('phone')) {
+    db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
+  }
+
   // Full back-and-forth thread for "Frá stjórnendum" support fyrirspurnir -
   // replaces the single reply/replied_at fields above (kept for old rows)
   // with an actual chat: any number of messages, either side.
