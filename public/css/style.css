@@ -272,19 +272,9 @@ tr:last-child td { border-bottom: none; }
   padding: 12px 14px;
   min-width: 200px;
   max-width: 260px;
-  max-height: 220px;
-  overflow-y: auto;
   text-align: left;
   z-index: 20;
-  scrollbar-width: thin;
-  scrollbar-color: var(--brand) var(--bg);
 }
-/* Make it obvious the list scrolls - a visible, always-on scrollbar
-   instead of the OS-default overlay one that only appears mid-scroll. */
-.pipeline-tooltip::-webkit-scrollbar { width: 7px; }
-.pipeline-tooltip::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
-.pipeline-tooltip::-webkit-scrollbar-thumb { background: var(--brand); border-radius: 4px; }
-.pipeline-tooltip::-webkit-scrollbar-thumb:hover { background: var(--navy-light); }
 .pipeline-step:hover .pipeline-tooltip,
 .pipeline-aside:hover .pipeline-tooltip {
   display: block;
@@ -295,12 +285,47 @@ tr:last-child td { border-bottom: none; }
   margin-bottom: 8px; padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
 }
+/* Inner scrolling area - kept separate from the outer box so the "more
+   below" fade can sit fixed at the bottom regardless of scroll position. */
+.pipeline-tooltip-list {
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand) var(--bg);
+}
+.pipeline-tooltip-list::-webkit-scrollbar { width: 7px; }
+.pipeline-tooltip-list::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+.pipeline-tooltip-list::-webkit-scrollbar-thumb { background: var(--brand); border-radius: 4px; }
+.pipeline-tooltip-list::-webkit-scrollbar-thumb:hover { background: var(--navy-light); }
 .pipeline-tooltip ul { list-style: none; margin: 0; padding: 0; }
 .pipeline-tooltip li {
   font-size: 13px; font-weight: 600; color: var(--text);
   padding: 4px 0; white-space: nowrap;
 }
 .pipeline-tooltip li span { font-weight: 500; color: var(--text-muted); }
+/* Fade + hint at the bottom, only rendered when the list is long enough to
+   actually scroll - a clear "there's more below" cue that doesn't depend on
+   the browser/OS choosing to show a visible scrollbar. */
+.pipeline-tooltip.has-more {
+  padding-bottom: 22px;
+}
+.pipeline-tooltip.has-more::after {
+  content: '\25BE Fleiri';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 26px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--brand);
+  letter-spacing: 0.02em;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), var(--card) 65%);
+  border-radius: 0 0 9px 9px;
+  pointer-events: none;
+}
 .pipeline-dot-pending { background: var(--warn-bg); color: var(--warn); }
 .pipeline-dot-ordered { background: var(--info-bg); color: var(--info); }
 .pipeline-dot-shipped { background: var(--info-bg); color: var(--info); }
