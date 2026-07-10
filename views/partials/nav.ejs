@@ -27,7 +27,7 @@
       <div class="sidebar-footer">
         <div class="user-chip">
           <div class="user-name"><%= currentUser.name %></div>
-          <div class="user-role"><%= roleLabel(currentUser.role) %></div>
+          <div class="user-role"><%= currentCompanyName || roleLabel(currentUser.role) %></div>
         </div>
         <a href="/logout" class="logout-link">Skrá út</a>
       </div>

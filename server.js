@@ -4,6 +4,7 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 
 const { seedIfEmpty } = require('./db/seed');
+const store = require('./db/store');
 const { formatDate, formatDayMonth, greeting } = require('./lib/format');
 const { statusLabel, eventTypeLabel, deliveryPreferenceLabel, roleLabel, leadStatusLabel } = require('./lib/labels');
 
@@ -54,6 +55,11 @@ app.use(
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   res.locals.currentPath = req.path;
+  res.locals.currentCompanyName = null;
+  if (req.session.user && req.session.user.role === 'admin' && req.session.user.company_id) {
+    const company = store.find('companies', req.session.user.company_id);
+    res.locals.currentCompanyName = company ? company.name : null;
+  }
   next();
 });
 
