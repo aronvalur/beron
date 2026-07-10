@@ -148,6 +148,12 @@ function ensureSchema() {
   if (!columns.includes('company_id')) {
     db.exec('ALTER TABLE meeting_requests ADD COLUMN company_id INTEGER');
   }
+  if (!columns.includes('reply')) {
+    db.exec('ALTER TABLE meeting_requests ADD COLUMN reply TEXT');
+  }
+  if (!columns.includes('replied_at')) {
+    db.exec('ALTER TABLE meeting_requests ADD COLUMN replied_at TEXT');
+  }
 }
 
 ensureSchema();

@@ -308,4 +308,21 @@ router.post('/fyrirspurnir/:id/status', (req, res) => {
   res.redirect(req.get('referer') || '/superadmin/fyrirspurnir');
 });
 
+// Beron HQ's reply to a support fyrirspurn - shown back to the company
+// contact on their own /fyrirspurnir page. Marks the request "contacted"
+// automatically unless it's already closed.
+router.post('/fyrirspurnir/:id/reply', (req, res) => {
+  const lead = store.find('meetingRequests', req.params.id);
+  if (!lead) return res.status(404).render('error', { message: 'Fyrirspurn fannst ekki.' });
+  const reply = (req.body.reply || '').trim();
+
+  store.update('meetingRequests', lead.id, {
+    reply,
+    replied_at: new Date().toISOString(),
+    status: lead.status === 'closed' ? 'closed' : 'contacted'
+  });
+
+  res.redirect(req.get('referer') || '/superadmin/fyrirspurnir');
+});
+
 module.exports = router;
