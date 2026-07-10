@@ -35,10 +35,16 @@
     <a href="<%= filterUrl(undefined, 'today') %>" class="<%= range === 'today' ? 'active' : '' %>">Í dag</a>
     <a href="<%= filterUrl(undefined, '7') %>" class="<%= range === '7' ? 'active' : '' %>">Næstu 7 daga</a>
     <a href="<%= filterUrl(undefined, 'month') %>" class="<%= range === 'month' ? 'active' : '' %>">Þennan mánuð</a>
+    <a href="<%= filterUrl(undefined, 'past') %>" class="<%= range === 'past' ? 'active' : '' %>">Liðið</a>
   </div>
 
   <div class="card">
-    <% if (orders.length === 0) { %>
+    <% if (orders.length === 0 && range === 'past') { %>
+      <div class="empty-state">
+        <h3>Ekkert liðið ennþá</h3>
+        <p>Tilefni sem eru liðin hjá birtast hér í staðinn fyrir að safnast upp í hinum flipunum.</p>
+      </div>
+    <% } else if (orders.length === 0) { %>
       <div class="empty-state">
         <h3>Ekkert framundan ennþá</h3>
         <p>Afmælis- og jólapantanir birtast hér sjálfkrafa. Notaðu „Sérpöntun" fyrir stöðuhækkanir, nýja starfsmenn og önnur sérstök tilefni.</p>

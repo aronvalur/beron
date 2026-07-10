@@ -73,15 +73,23 @@ router.get('/', (req, res) => {
       const d = new Date(o.event.date + 'T00:00:00');
       return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth();
     });
+  } else if (range === 'past') {
+    orders = orders.filter((o) => o.daysAway !== null && o.daysAway < 0);
+  } else {
+    // "Allt tímabil" means current/upcoming, not the whole history - once a
+    // birthday or jól has passed it moves to "Liðið" instead of cluttering
+    // this list forever. When next year's occurrence comes due (within the
+    // usual 30-day window) it's a fresh event/order and shows up here again.
+    orders = orders.filter((o) => o.daysAway === null || o.daysAway >= 0);
   }
 
   // Soonest first - this is an "upcoming" list, so chronological order by
   // event/delivery date makes more sense here than by when the order was
-  // created.
+  // created. Undir "Liðið" er þessu snúið við - nýjast liðna efst.
   orders.sort((a, b) => {
     if (a.daysAway === null) return 1;
     if (b.daysAway === null) return -1;
-    return a.daysAway - b.daysAway;
+    return range === 'past' ? b.daysAway - a.daysAway : a.daysAway - b.daysAway;
   });
 
   res.render('gift-orders/index', {
