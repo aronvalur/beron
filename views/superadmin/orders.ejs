@@ -14,6 +14,7 @@
       <a href="/superadmin/orders?range=week&status=<%= status %>" class="<%= range === 'week' ? 'active' : '' %>">Þessa viku</a>
       <a href="/superadmin/orders?range=month&status=<%= status %>" class="<%= range === 'month' ? 'active' : '' %>">Þennan mánuð</a>
       <a href="/superadmin/orders?range=all&status=<%= status %>" class="<%= range === 'all' ? 'active' : '' %>">Allar</a>
+      <a href="/superadmin/orders?range=past&status=<%= status %>" class="<%= range === 'past' ? 'active' : '' %>">Liðið</a>
     </div>
     <form method="GET" action="/superadmin/orders" class="status-filter">
       <input type="hidden" name="range" value="<%= range %>">

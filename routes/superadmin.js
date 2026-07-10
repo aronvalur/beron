@@ -215,13 +215,22 @@ router.get('/orders', (req, res) => {
       const d = new Date(o.date + 'T00:00:00');
       return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
     });
+  } else if (range === 'past') {
+    orders = orders.filter((o) => o.daysAway !== null && o.daysAway < 0);
+  } else {
+    // "Allar" means all current/upcoming orders - anything already past its
+    // date lives under the separate "Liðið" tab instead, so it doesn't
+    // clutter the main queue once it's no longer actionable.
+    orders = orders.filter((o) => o.daysAway === null || o.daysAway >= 0);
   }
 
   orders.sort((a, b) => {
     if (a.date === null && b.date === null) return 0;
     if (a.date === null) return 1;
     if (b.date === null) return -1;
-    return a.date > b.date ? 1 : -1;
+    // Most-recently-elapsed first under "Liðið" (freshest follow-up first);
+    // soonest-due first everywhere else.
+    return range === 'past' ? (a.date < b.date ? 1 : -1) : (a.date > b.date ? 1 : -1);
   });
 
   res.render('superadmin/orders', { orders, status, range });
