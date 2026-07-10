@@ -270,8 +270,8 @@ tr:last-child td { border-bottom: none; }
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(13, 74, 56, 0.16);
   padding: 12px 14px;
-  min-width: 200px;
-  max-width: 260px;
+  min-width: 220px;
+  max-width: 320px;
   text-align: left;
   z-index: 20;
 }
