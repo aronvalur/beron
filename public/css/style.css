@@ -276,7 +276,15 @@ tr:last-child td { border-bottom: none; }
   overflow-y: auto;
   text-align: left;
   z-index: 20;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand) var(--bg);
 }
+/* Make it obvious the list scrolls - a visible, always-on scrollbar
+   instead of the OS-default overlay one that only appears mid-scroll. */
+.pipeline-tooltip::-webkit-scrollbar { width: 7px; }
+.pipeline-tooltip::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+.pipeline-tooltip::-webkit-scrollbar-thumb { background: var(--brand); border-radius: 4px; }
+.pipeline-tooltip::-webkit-scrollbar-thumb:hover { background: var(--navy-light); }
 .pipeline-step:hover .pipeline-tooltip,
 .pipeline-aside:hover .pipeline-tooltip {
   display: block;
