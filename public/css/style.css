@@ -44,6 +44,7 @@ a:hover { text-decoration: underline; }
 
 .app-shell {
   display: flex;
+  align-items: flex-start;
   min-height: 100vh;
 }
 
@@ -55,6 +56,7 @@ a:hover { text-decoration: underline; }
   flex-direction: column;
   padding: 24px 0;
   flex-shrink: 0;
+  align-self: flex-start;
   position: sticky;
   top: 0;
   height: 100vh;
