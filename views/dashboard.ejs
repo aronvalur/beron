@@ -103,14 +103,17 @@
             <div class="pipeline-dot pipeline-dot-<%= s.status %> <%= s.count === 0 ? 'is-empty' : '' %>"><%= s.count %></div>
             <div class="pipeline-label"><%= statusLabel(s.status) %></div>
             <% if (s.count > 0) { %>
-              <div class="pipeline-tooltip <%= s.orders.length > 8 ? 'has-more' : '' %>">
+              <div class="pipeline-tooltip">
                 <div class="pipeline-tooltip-title"><%= statusLabel(s.status) %> (<%= s.count %>)</div>
-                <div class="pipeline-tooltip-list">
-                  <ul>
-                    <% s.orders.forEach(function(o) { %>
-                      <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
-                    <% }); %>
-                  </ul>
+                <div class="pipeline-tooltip-scroll">
+                  <div class="pipeline-tooltip-list">
+                    <ul>
+                      <% s.orders.forEach(function(o) { %>
+                        <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
+                      <% }); %>
+                    </ul>
+                  </div>
+                  <div class="pipeline-tooltip-track"><div class="pipeline-tooltip-thumb"></div></div>
                 </div>
               </div>
             <% } %>
@@ -123,19 +126,53 @@
         <div class="pipeline-dot pipeline-dot-cancelled <%= cancelled.count === 0 ? 'is-empty' : '' %>"><%= cancelled.count %></div>
         <div class="pipeline-label"><%= statusLabel(cancelled.status) %></div>
         <% if (cancelled.count > 0) { %>
-          <div class="pipeline-tooltip <%= cancelled.orders.length > 8 ? 'has-more' : '' %>">
+          <div class="pipeline-tooltip">
             <div class="pipeline-tooltip-title"><%= statusLabel(cancelled.status) %> (<%= cancelled.count %>)</div>
-            <div class="pipeline-tooltip-list">
-              <ul>
-                <% cancelled.orders.forEach(function(o) { %>
-                  <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
-                <% }); %>
-              </ul>
+            <div class="pipeline-tooltip-scroll">
+              <div class="pipeline-tooltip-list">
+                <ul>
+                  <% cancelled.orders.forEach(function(o) { %>
+                    <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
+                  <% }); %>
+                </ul>
+              </div>
+              <div class="pipeline-tooltip-track"><div class="pipeline-tooltip-thumb"></div></div>
             </div>
           </div>
         <% } %>
       </div>
     </div>
   </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('.pipeline-tooltip-scroll').forEach(function (wrap) {
+        var list = wrap.querySelector('.pipeline-tooltip-list');
+        var track = wrap.querySelector('.pipeline-tooltip-track');
+        var thumb = wrap.querySelector('.pipeline-tooltip-thumb');
+
+        function update() {
+          var scrollable = list.scrollHeight > list.clientHeight + 1;
+          track.classList.toggle('is-visible', scrollable);
+          if (!scrollable) return;
+          var trackH = track.clientHeight;
+          var thumbH = Math.max(20, (list.clientHeight / list.scrollHeight) * trackH);
+          var maxScroll = list.scrollHeight - list.clientHeight;
+          var ratio = maxScroll > 0 ? list.scrollTop / maxScroll : 0;
+          thumb.style.height = thumbH + 'px';
+          thumb.style.top = (ratio * (trackH - thumbH)) + 'px';
+        }
+
+        list.addEventListener('scroll', update);
+        window.addEventListener('resize', update);
+        // The tooltip is display:none until hovered, so measure once it's
+        // actually visible (mouseenter fires even though the reveal itself
+        // is pure CSS).
+        var trigger = wrap.closest('.pipeline-step, .pipeline-aside');
+        if (trigger) trigger.addEventListener('mouseenter', update);
+        update();
+      });
+    })();
+  </script>
 
 <%- include('partials/footer') %>
