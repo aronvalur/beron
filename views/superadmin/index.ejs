@@ -6,6 +6,39 @@
       <h1>Yfirlit Beron</h1>
       <p class="subtitle">Yfir öll fyrirtæki.</p>
     </div>
+    <details class="notif-bell">
+      <summary aria-label="Tilkynningar">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 8a6 6 0 1 1 12 0c0 3.4 1 5.5 1.8 6.7.3.4 0 1-.5 1H4.7c-.5 0-.8-.6-.5-1C5 13.5 6 11.4 6 8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M9.5 18a2.5 2.5 0 0 0 5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <% if (notificationCount > 0) { %><span class="notif-badge"><%= notificationCount %></span><% } %>
+      </summary>
+      <div class="notif-panel">
+        <% if (notificationCount === 0) { %>
+          <div class="notif-empty">Ekkert nýtt sem bíður.</div>
+        <% } else { %>
+          <% if (inquiryNotifications.length > 0) { %>
+            <div class="notif-section-title">Nýjar fyrirspurnir</div>
+            <% inquiryNotifications.forEach(function(m) { %>
+              <a class="notif-item" href="/superadmin/fyrirspurnir">
+                <span class="notif-item-title"><%= m.name %> &middot; <%= m.company %></span>
+                <span class="notif-item-sub"><%= m.type === 'support' ? 'Frá stjórnanda' : 'Fundarbeiðni' %> &middot; <%= formatDate(m.created_at) %></span>
+              </a>
+            <% }); %>
+          <% } %>
+          <% if (customOrderNotifications.length > 0) { %>
+            <div class="notif-section-title">Nýjar sérpantanir</div>
+            <% customOrderNotifications.forEach(function(o) { %>
+              <a class="notif-item" href="/superadmin/orders">
+                <span class="notif-item-title"><%= o.employee ? o.employee.name : 'Óþekkt' %> &middot; <%= o.company ? o.company.name : '—' %></span>
+                <span class="notif-item-sub"><%= o.occasion || 'Sérpöntun' %> &middot; <%= formatDate(o.created_at) %></span>
+              </a>
+            <% }); %>
+          <% } %>
+        <% } %>
+      </div>
+    </details>
   </div>
 
   <div class="grid grid-3">

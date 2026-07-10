@@ -34,12 +34,32 @@ router.get('/', (req, res) => {
   const allPendingOrders = store.where('giftOrders', (o) => o.status !== 'delivered' && o.status !== 'cancelled');
   const allUpcoming = store.all('companies').flatMap((c) => upcomingEventsForCompany(c.id, 30));
 
+  // Notifications: freshly-submitted sérpöntun (still pending, so nobody's
+  // acted on them yet) and unread fyrirspurnir - a quick "what needs a
+  // look" bell so nothing slips through between visits to the Gjafapantanir
+  // and Fyrirspurnir pages.
+  const companiesById = new Map(store.all('companies').map((c) => [c.id, c]));
+  const customOrderNotifications = store
+    .where('giftOrders', (o) => o.gift_type === 'custom' && o.status === 'pending')
+    .map((o) => Object.assign({}, o, {
+      company: companiesById.get(o.company_id),
+      employee: o.employee_id ? store.find('employees', o.employee_id) : null
+    }))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const inquiryNotifications = store
+    .where('meetingRequests', (m) => m.status === 'new')
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
   res.render('superadmin/index', {
     companyCount: stats.length,
     totalActiveEmployees: stats.reduce((sum, s) => sum + s.activeEmployeeCount, 0),
     pendingOrderCount: allPendingOrders.length,
     upcomingEventCount: allUpcoming.length,
-    stats
+    stats,
+    customOrderNotifications,
+    inquiryNotifications,
+    notificationCount: customOrderNotifications.length + inquiryNotifications.length
   });
 });
 

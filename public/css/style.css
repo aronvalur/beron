@@ -501,3 +501,42 @@ form.inline { display: inline-flex; }
   .calendar-day { min-height: 64px; padding: 5px; }
   .birthday-chip { font-size: 10.5px; padding: 2px 5px; }
 }
+
+/* Notification bell - superadmin Yfirlit */
+.notif-bell { position: relative; align-self: flex-start; }
+.notif-bell summary {
+  list-style: none; cursor: pointer; position: relative;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--navy);
+}
+.notif-bell summary::-webkit-details-marker { display: none; }
+.notif-bell summary:hover { border-color: var(--brand); color: var(--brand); }
+.notif-bell[open] summary { border-color: var(--brand); color: var(--brand); }
+.notif-badge {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px;
+  background: var(--danger); color: #fff; font-size: 10.5px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--bg);
+}
+.notif-panel {
+  position: absolute; top: 100%; right: 0; margin-top: 10px;
+  width: 340px; max-height: 420px; overflow-y: auto;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(13, 74, 56, 0.16); padding: 10px; z-index: 30;
+}
+.notif-section-title {
+  font-size: 11px; font-weight: 800; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.03em;
+  padding: 6px 8px 4px;
+}
+.notif-item {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px; border-radius: 8px; text-decoration: none;
+}
+.notif-item:hover { background: var(--bg); text-decoration: none; }
+.notif-item-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.notif-item-sub { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.notif-empty { padding: 16px 8px; text-align: center; color: var(--text-muted); font-size: 13px; }
