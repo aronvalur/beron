@@ -79,17 +79,36 @@
                 <% } %>
               </td>
               <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
-              <td style="min-width:180px;">
+              <td>
                 <% if (o.canEditNote) { %>
-                  <form class="inline note-form" method="POST" action="/gift-orders/<%= o.id %>/note">
-                    <input type="hidden" name="redirect_to" value="/gift-orders">
-                    <input type="text" name="notes" value="<%= o.notes || '' %>" placeholder="athugasemd">
-                    <button type="submit" class="btn btn-sm btn-secondary">Vista</button>
-                  </form>
+                  <details class="note-popover">
+                    <summary class="note-toggle <%= o.notes ? 'has-note' : '' %>" aria-label="<%= o.notes ? 'Breyta athugasemd' : 'Bæta við athugasemd' %>">
+                      <% if (o.notes) { %>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                      <% } else { %>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      <% } %>
+                    </summary>
+                    <div class="note-popover-panel">
+                      <form method="POST" action="/gift-orders/<%= o.id %>/note">
+                        <input type="hidden" name="redirect_to" value="/gift-orders">
+                        <textarea name="notes" placeholder="Athugasemd til Beron"><%= o.notes || '' %></textarea>
+                        <button type="submit" class="btn btn-sm btn-secondary" style="width:100%;">Vista</button>
+                      </form>
+                    </div>
+                  </details>
+                <% } else if (o.notes) { %>
+                  <details class="note-popover">
+                    <summary class="note-toggle has-note" aria-label="Sjá athugasemd (læst)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </summary>
+                    <div class="note-popover-panel">
+                      <div class="note-popover-readonly"><%= o.notes %></div>
+                      <div class="note-popover-hint">Læst - innan við <%= NOTE_CUTOFF_DAYS %> dagar til stefnu.</div>
+                    </div>
+                  </details>
                 <% } else { %>
-                  <span class="locked-note" title="Læst - innan við <%= NOTE_CUTOFF_DAYS %> dagar til stefnu">
-                    <%= o.notes || '—' %> <span style="opacity:0.7; font-weight:600;">(læst)</span>
-                  </span>
+                  <span style="font-size:13px; color:var(--text-muted);">—</span>
                 <% } %>
               </td>
               <td class="actions-cell">
@@ -98,7 +117,7 @@
                     <button type="submit" class="btn btn-sm btn-danger">Hætta við</button>
                   </form>
                 <% } else if (o.gift_type === 'custom' && o.status !== 'delivered' && o.status !== 'cancelled') { %>
-                  <span style="font-size:12px; color:var(--text-muted);" title="Of seint að hætta við - þarf að gerast minnst 7 dögum fyrir afhendingu.">Of seint</span>
+                  <button type="button" class="btn btn-sm btn-danger" disabled title="Of seint að hætta við - þarf að gerast minnst 7 dögum fyrir afhendingu.">Hætta við</button>
                 <% } else if (o.canSkip) { %>
                   <form class="inline" method="POST" action="/gift-orders/<%= o.id %>/skip" onsubmit="return confirm('Hætta við þessari gjöf?');">
                     <button type="submit" class="btn btn-sm btn-danger">Hætta við</button>
@@ -108,7 +127,7 @@
                     <button type="submit" class="btn btn-sm btn-success">Taka til baka</button>
                   </form>
                 <% } else if (o.status === 'cancelled') { %>
-                  <span style="font-size:12px; color:var(--text-muted);" title="Of seint að taka til baka - dagsetningin er of nálægt eða liðin.">Of seint</span>
+                  <button type="button" class="btn btn-sm btn-success" disabled title="Of seint að taka til baka - dagsetningin er of nálægt eða liðin.">Taka til baka</button>
                 <% } %>
               </td>
             </tr>
@@ -118,5 +137,55 @@
       </div>
     <% } %>
   </div>
+
+  <script>
+    (function () {
+      var popovers = Array.prototype.slice.call(document.querySelectorAll('.note-popover'));
+
+      function positionPanel(details) {
+        var summary = details.querySelector('summary');
+        var panel = details.querySelector('.note-popover-panel');
+        if (!summary || !panel) return;
+        var rect = summary.getBoundingClientRect();
+        var panelWidth = panel.offsetWidth || 260;
+        var left = Math.min(rect.left, window.innerWidth - panelWidth - 12);
+        panel.style.top = (rect.bottom + 6) + 'px';
+        panel.style.left = Math.max(12, left) + 'px';
+      }
+
+      popovers.forEach(function (details) {
+        details.addEventListener('toggle', function () {
+          if (details.open) {
+            // Only one note popover open at a time, and positioned with
+            // fixed coords (via JS) so the table's horizontal-scroll
+            // wrapper can't clip it like it would an absolutely positioned
+            // dropdown.
+            popovers.forEach(function (other) {
+              if (other !== details) other.open = false;
+            });
+            positionPanel(details);
+          }
+        });
+      });
+
+      window.addEventListener('scroll', function () {
+        popovers.forEach(function (details) {
+          if (details.open) positionPanel(details);
+        });
+      }, true);
+      window.addEventListener('resize', function () {
+        popovers.forEach(function (details) {
+          if (details.open) positionPanel(details);
+        });
+      });
+
+      // Click outside any open popover closes it.
+      document.addEventListener('click', function (e) {
+        popovers.forEach(function (details) {
+          if (details.open && !details.contains(e.target)) details.open = false;
+        });
+      });
+    })();
+  </script>
 
 <%- include('../partials/footer') %>

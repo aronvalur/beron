@@ -1,7 +1,7 @@
 const express = require('express');
 const store = require('../db/store');
 const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
-const { runDailyWorkflows, upcomingEventsForCompany, daysBetween, NOTE_CUTOFF_DAYS } = require('../lib/events');
+const { runDailyWorkflows, daysBetween, NOTE_CUTOFF_DAYS } = require('../lib/events');
 const { computeInvoice } = require('../lib/pricing');
 const { billingForCompanyMonth } = require('../lib/billing');
 const { eventTypeLabel } = require('../lib/labels');
@@ -18,12 +18,6 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
   const ordersByEvent = new Map(
     store.where('giftOrders', (o) => o.company_id === companyId && o.event_id).map((o) => [o.event_id, o])
   );
-
-  // Birthday/Christmas count for the stat card above - a narrower, specific
-  // number ("upcoming automatic gifts"), separate from the table below.
-  const birthdayChristmasCount = upcomingEventsForCompany(companyId, 30, today).filter(
-    (ev) => ev.event_type === 'birthday' || ev.event_type === 'christmas'
-  ).length;
 
   // The table itself shows everything happening in the next 30 days -
   // birthdays, Christmas, and sérpöntun alike - including ones that have
@@ -46,6 +40,12 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
       });
     })
     .sort((a, b) => a.daysAway - b.daysAway);
+
+  // Same list as the "Næstu 30 dagar" table below, but only the genuinely
+  // upcoming ones (excludes the -1 day lookback used to keep just-passed
+  // items visible in the table) - every occasion type counts here, not
+  // just birthdays/Christmas.
+  const occasionsNext30Count = upcomingEvents.filter((ev) => ev.daysAway >= 0).length;
 
   const activeEmployees = store.where('employees', (e) => e.company_id === companyId && e.active);
   const missingBudgetCount = activeEmployees.filter((e) => !e.birthday_budget).length;
@@ -75,7 +75,7 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
   res.render('dashboard', {
     company,
     upcomingEvents,
-    birthdayChristmasCount,
+    occasionsNext30Count,
     missingBudgetCount,
     activeEmployeeCount: activeEmployees.length,
     statusCounts,

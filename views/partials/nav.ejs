@@ -7,7 +7,7 @@
     <% if (currentUser && currentUser.role === 'admin') { %>
       <nav class="nav">
         <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Yfirlit</a>
-        <a href="/birthdays" class="<%= currentPath.startsWith('/birthdays') ? 'active' : '' %>">Afmæli</a>
+        <a href="/birthdays" class="<%= currentPath.startsWith('/birthdays') ? 'active' : '' %>">Dagatal</a>
         <a href="/gift-orders" class="<%= currentPath.startsWith('/gift-orders') ? 'active' : '' %>">Öll tilefni</a>
         <a href="/employees" class="<%= currentPath.startsWith('/employees') ? 'active' : '' %>">Starfsmenn</a>
         <a href="/fyrirspurnir" class="<%= currentPath.startsWith('/fyrirspurnir') ? 'active' : '' %>">Fyrirspurnir</a>

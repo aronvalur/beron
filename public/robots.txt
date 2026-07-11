@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /superadmin
+Disallow: /gift-orders
+Disallow: /employees
+Disallow: /birthdays
+Disallow: /billing
+Disallow: /settings
+Disallow: /fyrirspurnir
+
+Sitemap: https://beron.is/sitemap.xml

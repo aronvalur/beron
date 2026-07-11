@@ -1,3 +1,4 @@
+<% if (currentUser) { %>
 <%- include('partials/head', { title: 'Tilkynning' }) %>
 <%- include('partials/nav') %>
   <div class="empty-state">
@@ -6,3 +7,46 @@
     <p><a href="/">&larr; Til baka á yfirlit</a></p>
   </div>
 <%- include('partials/footer') %>
+<% } else { %>
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Síðan fannst ekki · Beron</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/marketing.css">
+</head>
+<body class="mkt">
+  <nav class="mkt-nav scrolled">
+    <div class="mkt-container mkt-nav-inner">
+      <a href="/" class="mkt-brand">
+        <img src="/images/logo.png" alt="Beron">
+        <span>Beron</span>
+      </a>
+      <div class="mkt-actions">
+        <a href="/login" class="mkt-login">Innskráning</a>
+        <a href="/" class="mkt-btn mkt-btn-primary">Til baka á forsíðu</a>
+      </div>
+    </div>
+  </nav>
+  <div class="mkt-container" style="padding-top:190px; padding-bottom:120px; text-align:center;">
+    <div class="mkt-kicker" style="justify-content:center; display:flex;">404</div>
+    <h1 class="mkt-h2" style="margin-left:auto; margin-right:auto; font-size:38px;">Síðan fannst því miður ekki.</h1>
+    <p class="mkt-sub" style="margin-left:auto; margin-right:auto;"><%= message || 'Slóðin sem þú fórst á er ekki til, eða hefur verið færð.' %></p>
+    <a href="/" class="mkt-btn mkt-btn-primary mkt-btn-lg">Til baka á forsíðu Beron</a>
+  </div>
+  <footer class="mkt-footer">
+    <div class="mkt-container mkt-footer-bottom">
+      <span>© <%= new Date().getFullYear() %> Beron. Öll réttindi áskilin.</span>
+      <span><a href="mailto:support@beron.is">support@beron.is</a></span>
+    </div>
+  </footer>
+</body>
+</html>
+<% } %>

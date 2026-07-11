@@ -1,11 +1,17 @@
-<%- include('partials/head', { title: 'Afmæli' }) %>
+<%- include('partials/head', { title: 'Dagatal' }) %>
 <%- include('partials/nav') %>
 
   <div class="page-header">
     <div>
-      <h1>Afmæli</h1>
+      <h1>Dagatal</h1>
       <p class="subtitle">Bara til að halda þér upplýstri &mdash; Beron sér um gjafirnar sjálfkrafa. Nánari upplýsingar (staða, fjárhæð, afhending) eru á Öll tilefni.</p>
     </div>
+  </div>
+
+  <div class="calendar-legend">
+    <span class="calendar-legend-item"><span class="calendar-legend-dot dot-birthday"></span> Afmæli</span>
+    <span class="calendar-legend-item"><span class="calendar-legend-dot dot-christmas"></span> Jól</span>
+    <span class="calendar-legend-item"><span class="calendar-legend-dot dot-custom"></span> <%= eventTypeLabel('custom') %></span>
   </div>
 
   <div class="calendar-header">
@@ -15,7 +21,7 @@
       <a href="/birthdays?month=<%= nextMonthParam %>" class="btn btn-sm btn-secondary" aria-label="Næsti mánuður">&rarr;</a>
     </div>
     <div style="display:flex; align-items:center; gap:14px;">
-      <span style="font-size:13px; color:var(--text-muted); font-weight:700;"><%= birthdaysThisMonth %> afmæli í <%= monthLabel.split(' ')[0] %></span>
+      <span style="font-size:13px; color:var(--text-muted); font-weight:700;"><%= occasionsThisMonth %> tilefni í <%= monthLabel.split(' ')[0] %></span>
       <% if (!isCurrentMonthView) { %>
         <a href="/birthdays?month=<%= todayMonthParam %>" class="btn btn-sm">Í dag</a>
       <% } %>
@@ -31,10 +37,17 @@
         <% week.forEach(function(day) { %>
           <div class="calendar-day <%= day.isCurrentMonth ? '' : 'is-other-month' %> <%= day.isToday ? 'is-today' : '' %>">
             <div class="calendar-day-number"><%= day.dayNumber %></div>
-            <% if (day.birthdays.length > 0) { %>
+            <% if (day.occasions.length > 0) { %>
               <div class="calendar-chips">
-                <% day.birthdays.forEach(function(e) { %>
-                  <span class="birthday-chip" title="<%= e.name %><% if (e.department) { %> &middot; <%= e.department %><% } %>"><%= e.name %></span>
+                <% day.occasions.forEach(function(o) { %>
+                  <span class="occasion-chip occasion-chip-<%= o.type %>">
+                    <span class="occasion-chip-label"><%= o.label %></span>
+                    <span class="occasion-tooltip">
+                      <span class="occasion-tooltip-type"><%= eventTypeLabel(o.type) %></span>
+                      <span class="occasion-tooltip-name"><%= o.label %></span>
+                      <% if (o.sub) { %><span class="occasion-tooltip-sub"><%= o.sub %></span><% } %>
+                    </span>
+                  </span>
                 <% }); %>
               </div>
             <% } %>

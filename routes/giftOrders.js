@@ -122,7 +122,7 @@ router.post('/custom', (req, res) => {
     event_type: 'custom',
     date: deliveryDate,
     status: 'upcoming',
-    custom_label: b.occasion || 'Sértilefni'
+    custom_label: b.occasion || 'Annað'
   });
 
   store.insert('giftOrders', {
@@ -137,7 +137,7 @@ router.post('/custom', (req, res) => {
     fulfillment_method: 'manual',
     delivery_method: b.delivery_method || 'to_employee',
     notes: b.notes || '',
-    occasion: b.occasion || 'Sértilefni'
+    occasion: b.occasion || 'Annað'
   });
 
   res.redirect('/gift-orders');

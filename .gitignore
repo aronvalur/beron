@@ -3,3 +3,10 @@ db/data.json
 db/data.json.migrated
 db/beron.db
 *.log
+
+# One-off business/research files that ended up in this folder because it
+# was the only connected workspace at the time - not part of the app itself,
+# shouldn't ship in the deployed repo.
+VR_fyrirtaeki_arsins_2026_tengilidir.xlsx
+send_vr_outreach.py
+vr_outreach_log.txt
