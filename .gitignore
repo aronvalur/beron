@@ -11,3 +11,6 @@ VR_fyrirtaeki_arsins_2026_tengilidir.xlsx
 send_vr_outreach.py
 vr_outreach_log.txt
 gjafakonnun-facebook.md
+buda_tengilidir.csv
+send_buda_outreach.py
+buda_outreach_log.txt
