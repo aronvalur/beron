@@ -54,6 +54,11 @@ router.get('/personuvernd', (req, res) => {
   res.render('marketing/personuvernd');
 });
 
+// About page - linked from nav and footer on every marketing page.
+router.get('/um-okkur', (req, res) => {
+  res.render('marketing/um-okkur');
+});
+
 // "Bóka fund" lead capture. No pricing is shown on the site - every visitor
 // is routed through this form, which stores the request for Beron HQ to
 // follow up on (see /superadmin/fyrirspurnir).
