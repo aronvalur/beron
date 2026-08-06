@@ -59,7 +59,16 @@
       </div>
       <div class="card">
         <h2>Áætlaður reikningur &mdash; <%= monthLabel %></h2>
-        <div class="invoice-line"><span><%= invoice.pricePerEmployee %> kr. &times; <%= monthBilling.activeEmployeeCount %> virkir starfsmenn</span><span><%= monthBilling.subscriptionTotal.toLocaleString('is-IS') %> kr.</span></div>
+        <div class="invoice-line">
+          <span>
+            <% if (invoice.isMinimum) { %>
+              Lágmarksáskrift <span style="color:var(--text-muted); font-weight:500;">(<%= invoice.pricePerEmployee %> kr. &times; <%= monthBilling.activeEmployeeCount %> <%= monthBilling.activeEmployeeCount === 1 ? 'virkur starfsmaður' : 'virkir starfsmenn' %> nær ekki lágmarki)</span>
+            <% } else { %>
+              <%= invoice.pricePerEmployee %> kr. &times; <%= monthBilling.activeEmployeeCount %> virkir starfsmenn
+            <% } %>
+          </span>
+          <span><%= monthBilling.subscriptionTotal.toLocaleString('is-IS') %> kr.</span>
+        </div>
         <div class="invoice-line">
           <span>Gjafakostnaður í mánuðinum<% if (monthBilling.handlingFeeTotal > 0) { %> <span style="color:var(--text-muted); font-weight:500;">(þ.m.t. <%= monthBilling.handlingFeeTotal.toLocaleString('is-IS') %> kr. þjónustugjöld)</span><% } %></span>
           <span><%= monthBilling.giftChargeTotal.toLocaleString('is-IS') %> kr.</span>
