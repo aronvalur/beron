@@ -50,24 +50,28 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
   const activeEmployees = store.where('employees', (e) => e.company_id === companyId && e.active);
   const missingBudgetCount = activeEmployees.filter((e) => !e.birthday_budget).length;
 
-  // Fulfillment pipeline breakdown - a different axis from the date-based
-  // "Næstu 30 dagar" table above: this shows where things stand regardless
-  // of when the event happens, so HR can see at a glance how much is still
-  // in progress vs already delivered.
-  const STATUS_ORDER = ['pending', 'ordered', 'shipped', 'delivered', 'cancelled'];
+  // "Í vinnslu núna" - only orders that are actually moving (ordered or
+  // shipped), not the full pending backlog of far-future birthdays that
+  // haven't been touched yet. Since most companies only ever have one or
+  // two gifts genuinely in flight at once, a full 5-stage pipeline count
+  // was more confusing than useful - a short list of what's actually
+  // happening right now is more actionable.
   const allOrders = store.where('giftOrders', (o) => o.company_id === companyId);
-  const statusCounts = STATUS_ORDER.map((status) => {
-    const orders = allOrders
-      .filter((o) => o.status === status)
-      .map((o) => {
-        const emp = o.employee_id ? store.find('employees', o.employee_id) : null;
-        return {
-          name: emp ? emp.name : 'Óþekkt',
-          typeLabel: o.occasion || eventTypeLabel(o.gift_type)
-        };
-      });
-    return { status, count: orders.length, orders };
-  });
+  const eventsById = new Map(store.where('events', (e) => e.company_id === companyId).map((e) => [e.id, e]));
+  const activeOrders = allOrders
+    .filter((o) => o.status === 'ordered' || o.status === 'shipped')
+    .map((o) => {
+      const emp = o.employee_id ? store.find('employees', o.employee_id) : null;
+      const event = o.event_id ? eventsById.get(o.event_id) : null;
+      const relevantDate = o.gift_type === 'custom' ? o.delivery_date : (event ? event.date : null);
+      return {
+        name: emp ? emp.name : 'Óþekkt',
+        typeLabel: o.occasion || eventTypeLabel(o.gift_type),
+        status: o.status,
+        date: relevantDate
+      };
+    })
+    .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
   const invoice = computeInvoice(company.subscription_plan, activeEmployees.length);
   const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());
@@ -78,7 +82,7 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     occasionsNext30Count,
     missingBudgetCount,
     activeEmployeeCount: activeEmployees.length,
-    statusCounts,
+    activeOrders,
     invoice,
     monthBilling,
     error: req.query.error,

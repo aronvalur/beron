@@ -110,87 +110,26 @@
   </div>
 
   <div class="card">
-    <h2>Staða allra gjafapantana</h2>
-    <p style="color:var(--text-muted); font-size:13px; margin:-8px 0 14px;">Hvar pantanir standa í ferlinu, óháð dagsetningu tilefnis.</p>
-
-    <div class="status-pipeline-row">
-      <div class="pipeline">
-        <% statusCounts.slice(0, 4).forEach(function(s) { %>
-          <div class="pipeline-step">
-            <div class="pipeline-dot pipeline-dot-<%= s.status %> <%= s.count === 0 ? 'is-empty' : '' %>"><%= s.count %></div>
-            <div class="pipeline-label"><%= statusLabel(s.status) %></div>
-            <% if (s.count > 0) { %>
-              <div class="pipeline-tooltip">
-                <div class="pipeline-tooltip-title"><%= statusLabel(s.status) %> (<%= s.count %>)</div>
-                <div class="pipeline-tooltip-scroll">
-                  <div class="pipeline-tooltip-list">
-                    <ul>
-                      <% s.orders.forEach(function(o) { %>
-                        <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
-                      <% }); %>
-                    </ul>
-                  </div>
-                  <div class="pipeline-tooltip-track"><div class="pipeline-tooltip-thumb"></div></div>
-                </div>
-              </div>
-            <% } %>
-          </div>
-        <% }); %>
-      </div>
-
-      <% const cancelled = statusCounts[4]; %>
-      <div class="pipeline-aside">
-        <div class="pipeline-dot pipeline-dot-cancelled <%= cancelled.count === 0 ? 'is-empty' : '' %>"><%= cancelled.count %></div>
-        <div class="pipeline-label"><%= statusLabel(cancelled.status) %></div>
-        <% if (cancelled.count > 0) { %>
-          <div class="pipeline-tooltip">
-            <div class="pipeline-tooltip-title"><%= statusLabel(cancelled.status) %> (<%= cancelled.count %>)</div>
-            <div class="pipeline-tooltip-scroll">
-              <div class="pipeline-tooltip-list">
-                <ul>
-                  <% cancelled.orders.forEach(function(o) { %>
-                    <li><%= o.name %> <span>&middot; <%= o.typeLabel %></span></li>
-                  <% }); %>
-                </ul>
-              </div>
-              <div class="pipeline-tooltip-track"><div class="pipeline-tooltip-thumb"></div></div>
-            </div>
-          </div>
-        <% } %>
-      </div>
-    </div>
+    <h2>Í vinnslu núna</h2>
+    <p style="color:var(--text-muted); font-size:13px; margin:-8px 0 14px;">Gjafir sem eru komnar af stað - pantaðar eða á leiðinni til starfsmanns.</p>
+    <% if (activeOrders.length === 0) { %>
+      <div class="table-empty">Ekkert í vinnslu núna - næsta gjöf fer sjálfkrafa af stað þegar nær dregur tilefninu.</div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Starfsmaður</th><th>Tegund</th><th>Dagsetning</th><th>Staða</th></tr></thead>
+        <tbody>
+          <% activeOrders.forEach(function(o) { %>
+            <tr>
+              <td><%= o.name %></td>
+              <td><%= o.typeLabel %></td>
+              <td><%= o.date ? formatDate(o.date) : '—' %></td>
+              <td><span class="badge badge-<%= o.status %>"><%= statusLabel(o.status) %></span></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
   </div>
-
-  <script>
-    (function () {
-      document.querySelectorAll('.pipeline-tooltip-scroll').forEach(function (wrap) {
-        var list = wrap.querySelector('.pipeline-tooltip-list');
-        var track = wrap.querySelector('.pipeline-tooltip-track');
-        var thumb = wrap.querySelector('.pipeline-tooltip-thumb');
-
-        function update() {
-          var scrollable = list.scrollHeight > list.clientHeight + 1;
-          track.classList.toggle('is-visible', scrollable);
-          if (!scrollable) return;
-          var trackH = track.clientHeight;
-          var thumbH = Math.max(20, (list.clientHeight / list.scrollHeight) * trackH);
-          var maxScroll = list.scrollHeight - list.clientHeight;
-          var ratio = maxScroll > 0 ? list.scrollTop / maxScroll : 0;
-          thumb.style.height = thumbH + 'px';
-          thumb.style.top = (ratio * (trackH - thumbH)) + 'px';
-        }
-
-        list.addEventListener('scroll', update);
-        window.addEventListener('resize', update);
-        // The tooltip is display:none until hovered, so measure once it's
-        // actually visible (mouseenter fires even though the reveal itself
-        // is pure CSS).
-        var trigger = wrap.closest('.pipeline-step, .pipeline-aside');
-        if (trigger) trigger.addEventListener('mouseenter', update);
-        update();
-      });
-    })();
-  </script>
 
   <script>
     (function () {
