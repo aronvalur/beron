@@ -152,11 +152,13 @@ a:hover { text-decoration: underline; }
 }
 .stat-label { color: var(--text-muted); font-size: 13px; font-weight: 600; margin-top: 4px; }
 
+.table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
 td { font-weight: 500; }
 th { color: var(--text-muted); font-weight: 800; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; }
 tr:last-child td { border-bottom: none; }
+.table-nowrap th, .table-nowrap td { white-space: nowrap; }
 .table-empty { color: var(--text-muted); padding: 20px 0; text-align: center; }
 
 .badge {

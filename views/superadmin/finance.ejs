@@ -42,17 +42,18 @@
     <% if (rows.length === 0) { %>
       <div class="table-empty">Engin fyrirtæki.</div>
     <% } else { %>
-      <table>
+      <div class="table-scroll">
+      <table class="table-nowrap">
         <thead>
           <tr>
             <th>Fyrirtæki</th>
             <th>Áskrift</th>
-            <th>Virkir starfsmenn</th>
-            <th>Gjafapantanir</th>
-            <th>Gjafakostnaður</th>
-            <th>Þjónustugjöld sértilefna</th>
+            <th>Starfsmenn</th>
+            <th>Pantanir</th>
+            <th>Gjafakostn.</th>
+            <th>Sértilefni</th>
             <th>Áskriftargjald</th>
-            <th>Samtals til að rukka</th>
+            <th>Samtals</th>
             <th>Staða</th>
           </tr>
         </thead>
@@ -60,7 +61,7 @@
           <% rows.forEach(function(r) { %>
             <tr>
               <td><a href="/superadmin/companies/<%= r.company.id %>"><%= r.company.name %></a></td>
-              <td><%= r.planLabel %> &middot; <%= r.pricePerEmployee.toLocaleString('is-IS') %> kr./starfsmann</td>
+              <td><%= r.planLabel %> &middot; <%= r.pricePerEmployee.toLocaleString('is-IS') %> kr.</td>
               <td><%= r.activeEmployeeCount %></td>
               <td><%= r.orderCount %></td>
               <td><%= r.giftCostTotal.toLocaleString('is-IS') %> kr.</td>
@@ -68,12 +69,14 @@
               <td><%= r.subscriptionTotal.toLocaleString('is-IS') %> kr.</td>
               <td><strong><%= r.grandTotal.toLocaleString('is-IS') %> kr.</strong></td>
               <td>
-                <form method="POST" action="/superadmin/finance/<%= r.company.id %>/toggle-paid" style="display:flex; align-items:center; gap:8px;">
-                  <input type="hidden" name="year" value="<%= year %>">
-                  <input type="hidden" name="month" value="<%= month %>">
+                <div style="display:flex; align-items:center; gap:10px;">
                   <span class="badge badge-<%= r.paid ? 'delivered' : 'pending' %>"><%= r.paid ? 'Greitt' : 'Ógreitt' %></span>
-                  <button type="submit" class="btn btn-sm btn-secondary"><%= r.paid ? 'Merkja ógreitt' : 'Merkja greitt' %></button>
-                </form>
+                  <form method="POST" action="/superadmin/finance/<%= r.company.id %>/toggle-paid">
+                    <input type="hidden" name="year" value="<%= year %>">
+                    <input type="hidden" name="month" value="<%= month %>">
+                    <button type="submit" class="btn btn-sm btn-secondary"><%= r.paid ? 'Merkja ógreitt' : 'Merkja greitt' %></button>
+                  </form>
+                </div>
               </td>
             </tr>
           <% }); %>
@@ -89,6 +92,7 @@
           </tr>
         </tfoot>
       </table>
+      </div>
     <% } %>
   </div>
 
