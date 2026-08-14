@@ -33,6 +33,28 @@ router.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/login'));
 });
 
+// Switches back from "Skrá inn sem fyrirtæki" (see routes/superadmin.js) to
+// the original Beron HQ session, without having to log in again. Lives
+// outside /superadmin because the current session role is 'admin' while
+// impersonating, so requireSuperAdmin would otherwise block this route.
+router.get('/stop-impersonating', (req, res) => {
+  if (!req.session.impersonatorId) return res.redirect('/');
+  const original = store.find('users', req.session.impersonatorId);
+  const companyId = req.session.impersonatingCompanyId;
+  req.session.impersonatorId = null;
+  req.session.impersonatingCompanyId = null;
+
+  if (!original) return res.redirect('/login');
+  req.session.user = {
+    id: original.id,
+    name: original.name,
+    email: original.email,
+    role: original.role,
+    company_id: original.company_id
+  };
+  res.redirect(companyId ? `/superadmin/companies/${companyId}` : '/superadmin');
+});
+
 router.get('/forgot-password', (req, res) => {
   res.render('forgot-password');
 });

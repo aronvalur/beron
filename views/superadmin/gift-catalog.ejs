@@ -1,0 +1,87 @@
+<%- include('../partials/head', { title: 'Gjafasafn' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Gjafasafn</h1>
+      <p class="subtitle">Gjafahugmyndir sem hafa virkað vel - til að rifja upp og endurnýta milli fyrirtækja í stað þess að byrja frá grunni í hvert sinn.</p>
+    </div>
+  </div>
+
+  <% if (saved) { %><div class="alert alert-success">Vistað.</div><% } %>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <div class="card">
+    <h2>Bæta við gjafahugmynd</h2>
+    <form method="POST" action="/superadmin/gjafasafn">
+      <div class="field-row">
+        <div class="field">
+          <label for="name">Nafn</label>
+          <input type="text" id="name" name="name" required placeholder="t.d. Kaffistell frá Kokku">
+        </div>
+        <div class="field">
+          <label for="price">Verð (kr.)</label>
+          <input type="number" id="price" name="price" min="0" step="500">
+        </div>
+      </div>
+      <div class="field">
+        <label for="category">Flokkur (valfrjálst)</label>
+        <input type="text" id="category" name="category" placeholder="t.d. eldhús, sælgæti, snyrtivörur">
+      </div>
+      <div class="field">
+        <label for="notes">Athugasemd (valfrjálst)</label>
+        <textarea id="notes" name="notes" placeholder="t.d. hvar keypt, hvað virkaði vel"></textarea>
+      </div>
+      <button type="submit" class="btn">Bæta við</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Safnið (<%= items.length %>)</h2>
+    <% if (items.length === 0) { %>
+      <div class="table-empty">Engar gjafahugmyndir skráðar ennþá.</div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Nafn</th><th>Verð</th><th>Flokkur</th><th>Athugasemd</th><th></th></tr></thead>
+        <tbody>
+          <% items.forEach(function(item) { %>
+            <tr>
+              <td><%= item.name %></td>
+              <td><%= item.price ? item.price.toLocaleString('is-IS') + ' kr.' : '—' %></td>
+              <td><%= item.category || '—' %></td>
+              <td style="max-width:280px;"><%= item.notes || '—' %></td>
+              <td style="white-space:nowrap;">
+                <details style="display:inline-block;">
+                  <summary class="btn btn-sm btn-secondary" style="display:inline-block; cursor:pointer;">Breyta</summary>
+                  <form method="POST" action="/superadmin/gjafasafn/<%= item.id %>?_method=PUT" style="margin-top:10px; min-width:260px;">
+                    <div class="field">
+                      <label>Nafn</label>
+                      <input type="text" name="name" required value="<%= item.name %>">
+                    </div>
+                    <div class="field">
+                      <label>Verð (kr.)</label>
+                      <input type="number" name="price" min="0" step="500" value="<%= item.price || '' %>">
+                    </div>
+                    <div class="field">
+                      <label>Flokkur</label>
+                      <input type="text" name="category" value="<%= item.category || '' %>">
+                    </div>
+                    <div class="field">
+                      <label>Athugasemd</label>
+                      <textarea name="notes"><%= item.notes || '' %></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm">Vista</button>
+                  </form>
+                </details>
+                <form method="POST" action="/superadmin/gjafasafn/<%= item.id %>?_method=DELETE" style="display:inline-block; margin-left:6px;" onsubmit="return confirm('Eyða þessari gjafahugmynd?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Eyða</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

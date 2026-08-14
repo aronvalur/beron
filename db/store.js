@@ -34,7 +34,9 @@ const TABLES = {
   giftOrders: 'gift_orders',
   subscriptions: 'subscriptions',
   meetingRequests: 'meeting_requests',
-  inquiryMessages: 'inquiry_messages'
+  inquiryMessages: 'inquiry_messages',
+  invoicePayments: 'invoice_payments',
+  giftCatalog: 'gift_catalog'
 };
 
 // Columns that are real booleans in JS but stored as 0/1 in SQLite (which has
@@ -42,7 +44,8 @@ const TABLES = {
 const BOOLEAN_FIELDS = {
   companies: ['email_notifications'],
   employees: ['active'],
-  subscriptions: ['active']
+  subscriptions: ['active'],
+  invoicePayments: ['paid']
 };
 
 function ensureSchema() {
@@ -122,6 +125,25 @@ function ensureSchema() {
       price_per_employee REAL,
       monthly_fee REAL,
       active INTEGER DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS invoice_payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL,
+      company_id INTEGER,
+      year INTEGER,
+      month INTEGER,
+      paid INTEGER DEFAULT 0,
+      paid_at TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS gift_catalog (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL,
+      name TEXT,
+      price REAL,
+      category TEXT,
+      notes TEXT
     );
 
     CREATE TABLE IF NOT EXISTS meeting_requests (

@@ -27,12 +27,6 @@ router.post('/company', (req, res) => {
   res.redirect('/settings?saved=1');
 });
 
-router.post('/notifications', (req, res) => {
-  const companyId = req.session.user.company_id;
-  store.update('companies', companyId, { email_notifications: req.body.email_notifications === 'on' });
-  res.redirect('/settings?saved=1');
-});
-
 router.post('/admins', (req, res) => {
   const companyId = req.session.user.company_id;
   const existing = store.where('users', (u) => u.company_id === companyId && u.role === 'admin');

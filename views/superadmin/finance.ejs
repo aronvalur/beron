@@ -25,16 +25,16 @@
       <div class="stat-label">Gjafakostnaður samtals</div>
     </div>
     <div class="card stat-card">
-      <div class="stat-value"><%= grandHandlingTotal.toLocaleString('is-IS') %> kr.</div>
-      <div class="stat-label">Þjónustugjöld sértilefna samtals</div>
-    </div>
-    <div class="card stat-card">
       <div class="stat-value"><%= grandSubTotal.toLocaleString('is-IS') %> kr.</div>
       <div class="stat-label">Áskriftir samtals</div>
     </div>
     <div class="card stat-card">
       <div class="stat-value"><%= grandTotal.toLocaleString('is-IS') %> kr.</div>
       <div class="stat-label">Til að rukka samtals</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-value" style="color:<%= grandOutstandingTotal > 0 ? 'var(--danger)' : 'var(--success)' %>;"><%= grandOutstandingTotal.toLocaleString('is-IS') %> kr.</div>
+      <div class="stat-label">Ógreitt ennþá</div>
     </div>
   </div>
 
@@ -53,6 +53,7 @@
             <th>Þjónustugjöld sértilefna</th>
             <th>Áskriftargjald</th>
             <th>Samtals til að rukka</th>
+            <th>Staða</th>
           </tr>
         </thead>
         <tbody>
@@ -66,6 +67,14 @@
               <td><%= r.handlingFeeTotal > 0 ? r.handlingFeeTotal.toLocaleString('is-IS') + ' kr.' : '—' %></td>
               <td><%= r.subscriptionTotal.toLocaleString('is-IS') %> kr.</td>
               <td><strong><%= r.grandTotal.toLocaleString('is-IS') %> kr.</strong></td>
+              <td>
+                <form method="POST" action="/superadmin/finance/<%= r.company.id %>/toggle-paid" style="display:flex; align-items:center; gap:8px;">
+                  <input type="hidden" name="year" value="<%= year %>">
+                  <input type="hidden" name="month" value="<%= month %>">
+                  <span class="badge badge-<%= r.paid ? 'delivered' : 'pending' %>"><%= r.paid ? 'Greitt' : 'Ógreitt' %></span>
+                  <button type="submit" class="btn btn-sm btn-secondary"><%= r.paid ? 'Merkja ógreitt' : 'Merkja greitt' %></button>
+                </form>
+              </td>
             </tr>
           <% }); %>
         </tbody>
@@ -76,6 +85,7 @@
             <td><%= grandHandlingTotal.toLocaleString('is-IS') %> kr.</td>
             <td><%= grandSubTotal.toLocaleString('is-IS') %> kr.</td>
             <td><%= grandTotal.toLocaleString('is-IS') %> kr.</td>
+            <td></td>
           </tr>
         </tfoot>
       </table>

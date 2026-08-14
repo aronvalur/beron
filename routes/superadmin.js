@@ -5,7 +5,7 @@ const { requireLogin, requireSuperAdmin } = require('../middleware/auth');
 const { runDailyWorkflows, upcomingEventsForCompany, daysBetween } = require('../lib/events');
 const { computeInvoice, PLANS } = require('../lib/pricing');
 const { MONTHS_IS } = require('../lib/format');
-const { billingForCompanyMonth } = require('../lib/billing');
+const { billingForCompanyMonth, getInvoicePayment, setInvoicePayment } = require('../lib/billing');
 
 const router = express.Router();
 router.use(requireLogin, requireSuperAdmin);
@@ -151,11 +151,40 @@ router.get('/companies/:id', (req, res) => {
     admins,
     subscription,
     plan,
+    PLANS,
     justCreated: req.query.created === '1',
     newPassword: req.query.pwd || null,
     justReset: req.query.reset === '1',
-    resetEmail: req.query.email || null
+    resetEmail: req.query.email || null,
+    saved: req.query.saved === '1',
+    loginError: req.query.error || null
   });
+});
+
+// Beron HQ editing a company's own on-file info (name, kennitala, billing
+// details, plan) after it's already been created - separate from the HR
+// contact's own /billing page, since a company might call in and ask HQ to
+// fix something for them directly instead of doing it themselves.
+router.put('/companies/:id', (req, res) => {
+  const company = store.find('companies', req.params.id);
+  if (!company) return res.status(404).render('error', { message: 'Fyrirtæki fannst ekki.' });
+  const b = req.body;
+  const plan = PLANS[b.subscription_plan] ? b.subscription_plan : company.subscription_plan;
+
+  store.update('companies', company.id, {
+    name: (b.name || '').trim() || company.name,
+    kennitala: (b.kennitala || '').trim(),
+    billing_email: (b.billing_email || '').trim(),
+    billing_address: (b.billing_address || '').trim(),
+    subscription_plan: plan
+  });
+
+  const subscription = store.where('subscriptions', (s) => s.company_id === company.id)[0];
+  if (subscription && plan !== subscription.plan_type) {
+    store.update('subscriptions', subscription.id, { plan_type: plan, price_per_employee: PLANS[plan].pricePerEmployee });
+  }
+
+  res.redirect(`/superadmin/companies/${company.id}?saved=1`);
 });
 
 // Support path for "I forgot my password": a company contact emails
@@ -173,6 +202,31 @@ router.post('/companies/:id/admins/:userId/reset-password', (req, res) => {
   const newPassword = (req.body.password || '').trim() || 'beron123';
   store.update('users', user.id, { password_hash: bcrypt.hashSync(newPassword, 10) });
   res.redirect(`/superadmin/companies/${company.id}?reset=1&pwd=${encodeURIComponent(newPassword)}&email=${encodeURIComponent(user.email)}`);
+});
+
+// Lets Beron HQ see exactly what a company contact sees, instead of
+// guessing from the data alone - useful for support calls ("I don't see
+// that button"). Logs in as that company's first tengiliður; the original
+// superadmin session is stashed so /stop-impersonating (routes/auth.js) can
+// switch back without logging in again.
+router.post('/companies/:id/login-as', (req, res) => {
+  const company = store.find('companies', req.params.id);
+  if (!company) return res.status(404).render('error', { message: 'Fyrirtæki fannst ekki.' });
+  const admin = store.where('users', (u) => u.company_id === company.id && u.role === 'admin')[0];
+  if (!admin) {
+    return res.redirect(`/superadmin/companies/${company.id}?error=` + encodeURIComponent('Enginn tengiliður til að skrá inn sem.'));
+  }
+
+  req.session.impersonatorId = req.session.user.id;
+  req.session.impersonatingCompanyId = company.id;
+  req.session.user = {
+    id: admin.id,
+    name: admin.name,
+    email: admin.email,
+    role: admin.role,
+    company_id: admin.company_id
+  };
+  res.redirect('/');
 });
 
 router.post('/companies/:id/subscription', (req, res) => {
@@ -265,7 +319,11 @@ router.get('/orders', (req, res) => {
 // finance uses at month-end to know exactly what to invoice each company.
 // (Shared with the HR-facing billing page - see lib/billing.js.)
 function financeForMonth(year, month) {
-  return store.all('companies').map((c) => billingForCompanyMonth(c, year, month));
+  return store.all('companies').map((c) => {
+    const row = billingForCompanyMonth(c, year, month);
+    const payment = getInvoicePayment(c.id, year, month);
+    return Object.assign({}, row, { paid: !!(payment && payment.paid), paidAt: payment ? payment.paid_at : null });
+  });
 }
 
 router.get('/finance', (req, res) => {
@@ -303,8 +361,25 @@ router.get('/finance', (req, res) => {
     grandGiftCostTotal: rows.reduce((s, r) => s + r.giftCostTotal, 0),
     grandHandlingTotal: rows.reduce((s, r) => s + r.handlingFeeTotal, 0),
     grandSubTotal: rows.reduce((s, r) => s + r.subscriptionTotal, 0),
-    grandTotal: rows.reduce((s, r) => s + r.grandTotal, 0)
+    grandTotal: rows.reduce((s, r) => s + r.grandTotal, 0),
+    grandOutstandingTotal: rows.filter((r) => !r.paid).reduce((s, r) => s + r.grandTotal, 0)
   });
+});
+
+// Merkja reikning greiddan/ógreiddan fyrir eitt fyrirtæki, einn mánuð -
+// billing er handvirkt svo þetta er eina staðfestingin á hver hefur borgað.
+router.post('/finance/:companyId/toggle-paid', (req, res) => {
+  const company = store.find('companies', req.params.companyId);
+  if (!company) return res.status(404).render('error', { message: 'Fyrirtæki fannst ekki.' });
+  const year = parseInt(req.body.year, 10);
+  const month = parseInt(req.body.month, 10); // 1-12 from form
+  if (!year || !month) return res.redirect('/superadmin/finance');
+
+  const monthIndex = month - 1;
+  const current = getInvoicePayment(company.id, year, monthIndex);
+  setInvoicePayment(company.id, year, monthIndex, !(current && current.paid));
+
+  res.redirect(`/superadmin/finance?year=${year}&month=${month}`);
 });
 
 router.post('/orders/:id/status', (req, res) => {
@@ -385,6 +460,49 @@ router.post('/fyrirspurnir/:id/reply', (req, res) => {
   });
 
   res.redirect(req.get('referer') || '/superadmin/fyrirspurnir');
+});
+
+// Gjafasafn: a simple running list of gift ideas Beron HQ has actually
+// bought and liked - name, rough price, category, a note on why it worked -
+// so a good choice for one company's afmæli can be reused for the next
+// instead of starting from scratch every time. Not linked to orders yet,
+// just a shared reference list.
+router.get('/gjafasafn', (req, res) => {
+  const items = store.all('giftCatalog').sort((a, b) => a.name.localeCompare(b.name, 'is'));
+  res.render('superadmin/gift-catalog', { items, error: req.query.error, saved: req.query.saved });
+});
+
+router.post('/gjafasafn', (req, res) => {
+  const b = req.body;
+  const name = (b.name || '').trim();
+  if (!name) {
+    return res.redirect('/superadmin/gjafasafn?error=' + encodeURIComponent('Nafn er nauðsynlegt.'));
+  }
+  store.insert('giftCatalog', {
+    name,
+    price: b.price ? Number(b.price) : null,
+    category: (b.category || '').trim(),
+    notes: (b.notes || '').trim()
+  });
+  res.redirect('/superadmin/gjafasafn?saved=1');
+});
+
+router.put('/gjafasafn/:id', (req, res) => {
+  const item = store.find('giftCatalog', req.params.id);
+  if (!item) return res.status(404).render('error', { message: 'Fannst ekki.' });
+  const b = req.body;
+  store.update('giftCatalog', item.id, {
+    name: (b.name || '').trim() || item.name,
+    price: b.price ? Number(b.price) : null,
+    category: (b.category || '').trim(),
+    notes: (b.notes || '').trim()
+  });
+  res.redirect('/superadmin/gjafasafn?saved=1');
+});
+
+router.delete('/gjafasafn/:id', (req, res) => {
+  store.remove('giftCatalog', req.params.id);
+  res.redirect('/superadmin/gjafasafn?saved=1');
 });
 
 module.exports = router;

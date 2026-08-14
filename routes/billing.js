@@ -2,7 +2,7 @@ const express = require('express');
 const store = require('../db/store');
 const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
 const { PLANS, SETUP_FEE, computeInvoice } = require('../lib/pricing');
-const { billingForCompanyMonth } = require('../lib/billing');
+const { billingForCompanyMonth, getInvoicePayment } = require('../lib/billing');
 const { MONTHS_IS } = require('../lib/format');
 
 const router = express.Router();
@@ -16,10 +16,43 @@ router.get('/', (req, res) => {
   const invoice = computeInvoice(company.subscription_plan, activeEmployeeCount);
 
   const today = new Date();
-  const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());
-  const monthLabel = `${MONTHS_IS[today.getMonth()]} ${today.getFullYear()}`;
+  let year = parseInt(req.query.year, 10);
+  let month = parseInt(req.query.month, 10); // 1-12 from query, stored 0-11 internally
+  if (!year || !month || month < 1 || month > 12) {
+    year = today.getFullYear();
+    month = today.getMonth() + 1;
+  }
+  const monthIndex = month - 1;
 
-  res.render('billing', { company, subscription, invoice, monthBilling, monthLabel, PLANS, SETUP_FEE, saved: req.query.saved });
+  const monthBilling = billingForCompanyMonth(company, year, monthIndex);
+  const monthLabel = `${MONTHS_IS[monthIndex]} ${year}`;
+  const payment = getInvoicePayment(companyId, year, monthIndex);
+
+  let prevMonth = month - 1, prevYear = year;
+  if (prevMonth < 1) { prevMonth = 12; prevYear -= 1; }
+  let nextMonth = month + 1, nextYear = year;
+  if (nextMonth > 12) { nextMonth = 1; nextYear += 1; }
+
+  const isCurrentMonth = year === today.getFullYear() && monthIndex === today.getMonth();
+
+  res.render('billing', {
+    company,
+    subscription,
+    invoice,
+    monthBilling,
+    monthLabel,
+    year,
+    month,
+    prevYear,
+    prevMonth,
+    nextYear,
+    nextMonth,
+    isCurrentMonth,
+    paid: !!(payment && payment.paid),
+    PLANS,
+    SETUP_FEE,
+    saved: req.query.saved
+  });
 });
 
 router.post('/', (req, res) => {

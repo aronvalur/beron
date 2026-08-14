@@ -56,6 +56,7 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   res.locals.currentPath = req.path;
   res.locals.currentCompanyName = null;
+  res.locals.isImpersonating = !!req.session.impersonatorId;
   if (req.session.user && req.session.user.role === 'admin' && req.session.user.company_id) {
     const company = store.find('companies', req.session.user.company_id);
     res.locals.currentCompanyName = company ? company.name : null;

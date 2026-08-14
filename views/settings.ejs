@@ -11,30 +11,15 @@
   <% if (saved) { %><div class="alert alert-success">Vistað.</div><% } %>
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
-  <div class="grid grid-2">
-    <div class="card">
-      <h2>Upplýsingar um fyrirtækið</h2>
-      <form method="POST" action="/settings/company">
-        <div class="field">
-          <label for="name">Nafn fyrirtækis</label>
-          <input type="text" id="name" name="name" value="<%= company.name %>" required>
-        </div>
-        <button type="submit" class="btn">Vista</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <h2>Tilkynningar</h2>
-      <form method="POST" action="/settings/notifications">
-        <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px;">
-          <input type="checkbox" name="email_notifications" <%= company.email_notifications ? 'checked' : '' %> style="margin-top:3px;">
-          <span>Senda mannauðsstjóra tölvupóst þegar tilefni nálgast
-            <br><span class="hint" style="color:var(--text-muted); font-size:12.5px;">Stýrir hvort teymið þitt fái áminningu í tölvupósti áður en tilefni rennur upp.</span>
-          </span>
-        </label>
-        <button type="submit" class="btn" style="margin-top:16px;">Vista</button>
-      </form>
-    </div>
+  <div class="card" style="max-width:520px;">
+    <h2>Upplýsingar um fyrirtækið</h2>
+    <form method="POST" action="/settings/company">
+      <div class="field">
+        <label for="name">Nafn fyrirtækis</label>
+        <input type="text" id="name" name="name" value="<%= company.name %>" required>
+      </div>
+      <button type="submit" class="btn">Vista</button>
+    </form>
   </div>
 
   <div class="card">

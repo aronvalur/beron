@@ -1,3 +1,9 @@
+<% if (isImpersonating) { %>
+  <div style="background:var(--warn); color:#1a1200; padding:8px 20px; font-size:13.5px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px;">
+    <span>Þú ert skráð(ur) inn sem <%= currentCompanyName || 'fyrirtæki' %> - Beron HQ aðgangur er í bið.</span>
+    <a href="/stop-impersonating" style="color:#1a1200; text-decoration:underline;">Til baka í ofurstjórn</a>
+  </div>
+<% } %>
 <div class="app-shell">
   <aside class="sidebar">
     <div class="brand">
@@ -20,6 +26,7 @@
         <a href="/superadmin/companies" class="<%= currentPath.startsWith('/superadmin/companies') ? 'active' : '' %>">Fyrirtæki</a>
         <a href="/superadmin/orders" class="<%= currentPath.startsWith('/superadmin/orders') ? 'active' : '' %>">Gjafapantanir</a>
         <a href="/superadmin/finance" class="<%= currentPath.startsWith('/superadmin/finance') ? 'active' : '' %>">Fjármál</a>
+        <a href="/superadmin/gjafasafn" class="<%= currentPath.startsWith('/superadmin/gjafasafn') ? 'active' : '' %>">Gjafasafn</a>
         <a href="/superadmin/fyrirspurnir" class="<%= currentPath.startsWith('/superadmin/fyrirspurnir') ? 'active' : '' %>">Fyrirspurnir</a>
       </nav>
     <% } %>

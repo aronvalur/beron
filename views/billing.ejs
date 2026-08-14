@@ -58,7 +58,17 @@
         </p>
       </div>
       <div class="card">
-        <h2>Áætlaður reikningur &mdash; <%= monthLabel %></h2>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:4px;">
+          <h2 style="margin:0;"><%= isCurrentMonth ? 'Áætlaður reikningur' : 'Reikningur' %> &mdash; <%= monthLabel %></h2>
+          <span class="badge badge-<%= paid ? 'delivered' : 'pending' %>"><%= paid ? 'Greitt' : 'Ógreitt' %></span>
+        </div>
+        <div class="filters" style="margin:0 0 14px;">
+          <a href="/billing?year=<%= prevYear %>&month=<%= prevMonth %>">&larr; Fyrri mánuður</a>
+          <% if (!isCurrentMonth) { %>
+            <a href="/billing">Þessi mánuður</a>
+          <% } %>
+          <a href="/billing?year=<%= nextYear %>&month=<%= nextMonth %>">Næsti mánuður &rarr;</a>
+        </div>
         <div class="invoice-line">
           <span>
             <% if (invoice.isMinimum) { %>
@@ -75,7 +85,11 @@
         </div>
         <div class="invoice-line"><span>Áætluð heildarfjárhæð</span><span><%= monthBilling.grandTotal.toLocaleString('is-IS') %> kr.</span></div>
         <p class="hint" style="margin-top:10px; font-size:12.5px; color:var(--text-muted);">
-          Beron gefur út reikninga handvirkt í hverjum mánuði. Þetta er áætlun byggð á virkum starfsmönnum og gjöfum sem eru skráðar í <%= monthLabel %> nú þegar - fjöldi gjafa getur enn breyst út mánuðinn.
+          <% if (isCurrentMonth) { %>
+            Beron gefur út reikninga handvirkt í hverjum mánuði. Þetta er áætlun byggð á virkum starfsmönnum og gjöfum sem eru skráðar í <%= monthLabel %> nú þegar - fjöldi gjafa getur enn breyst út mánuðinn.
+          <% } else { %>
+            Yfirlit yfir <%= monthLabel %> - Beron gefur út reikninga handvirkt í hverjum mánuði.
+          <% } %>
         </p>
       </div>
     </div>
