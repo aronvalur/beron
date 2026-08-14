@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
@@ -19,6 +20,7 @@ const giftOrderRoutes = require('./routes/giftOrders');
 const billingRoutes = require('./routes/billing');
 const inquiryRoutes = require('./routes/inquiries');
 const settingsRoutes = require('./routes/settings');
+const announcementRoutes = require('./routes/announcements');
 const superadminRoutes = require('./routes/superadmin');
 
 const app = express();
@@ -75,6 +77,7 @@ app.use('/gift-orders', giftOrderRoutes);
 app.use('/billing', billingRoutes);
 app.use('/fyrirspurnir', inquiryRoutes);
 app.use('/settings', settingsRoutes);
+app.use('/tilkynningar', announcementRoutes);
 app.use('/superadmin', superadminRoutes);
 
 app.use((req, res) => {

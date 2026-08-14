@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const store = require('../db/store');
 const { requireLogin, requireCompanyAdmin } = require('../middleware/auth');
+const { REMINDER_DAYS } = require('../lib/notifications');
 
 const router = express.Router();
 router.use(requireLogin, requireCompanyAdmin);
@@ -16,6 +17,7 @@ router.get('/', (req, res) => {
     company,
     admins,
     maxAdmins: MAX_ADMINS,
+    REMINDER_DAYS,
     error: req.query.error,
     saved: req.query.saved
   });
@@ -24,6 +26,15 @@ router.get('/', (req, res) => {
 router.post('/company', (req, res) => {
   const companyId = req.session.user.company_id;
   store.update('companies', companyId, { name: req.body.name });
+  res.redirect('/settings?saved=1');
+});
+
+// Turns on/off the automatic "afmæli/jól er að nálgast" heads-up email to
+// every tengiliður at the company (see lib/notifications.js). Off by
+// default for new companies - opt-in, not spam.
+router.post('/notifications', (req, res) => {
+  const companyId = req.session.user.company_id;
+  store.update('companies', companyId, { email_notifications: req.body.email_notifications === 'on' });
   res.redirect('/settings?saved=1');
 });
 

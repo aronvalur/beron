@@ -505,4 +505,37 @@ router.delete('/gjafasafn/:id', (req, res) => {
   res.redirect('/superadmin/gjafasafn?saved=1');
 });
 
+// Tilkynningar: Beron HQ broadcasting a message to every company at once, or
+// to one company specifically - shows up in that company's notification
+// bell (see lib/notifications.js) until they dismiss it. Not an email blast
+// on its own - just an in-app heads-up (e.g. "Beron er lokað 24. des.").
+router.get('/tilkynningar', (req, res) => {
+  const companies = store.all('companies').sort((a, b) => a.name.localeCompare(b.name, 'is'));
+  const companiesById = new Map(companies.map((c) => [c.id, c]));
+  const announcements = store
+    .all('announcements')
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .map((a) => Object.assign({}, a, { company: a.company_id ? companiesById.get(a.company_id) : null }));
+
+  res.render('superadmin/announcements', { companies, announcements, error: req.query.error, saved: req.query.saved });
+});
+
+router.post('/tilkynningar', (req, res) => {
+  const b = req.body;
+  const title = (b.title || '').trim();
+  const body = (b.body || '').trim();
+  if (!title || !body) {
+    return res.redirect('/superadmin/tilkynningar?error=' + encodeURIComponent('Titill og skilaboð eru bæði nauðsynleg.'));
+  }
+  const companyId = b.target === 'all' || !b.target ? null : Number(b.target);
+
+  store.insert('announcements', { company_id: companyId, title, body });
+  res.redirect('/superadmin/tilkynningar?saved=1');
+});
+
+router.delete('/tilkynningar/:id', (req, res) => {
+  store.remove('announcements', req.params.id);
+  res.redirect('/superadmin/tilkynningar?saved=1');
+});
+
 module.exports = router;

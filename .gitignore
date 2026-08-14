@@ -3,6 +3,7 @@ db/data.json
 db/data.json.migrated
 db/beron.db
 *.log
+.env
 
 # One-off business/research files that ended up in this folder because it
 # was the only connected workspace at the time - not part of the app itself,

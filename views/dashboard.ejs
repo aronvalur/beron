@@ -6,7 +6,45 @@
       <h1><%= greeting(currentUser.name) %>, <%= currentUser.name.split(' ')[0] %></h1>
       <p class="subtitle"><%= company.name %> &mdash; hér er það sem er framundan hjá starfsfólkinu þínu.</p>
     </div>
-    <a href="/gift-orders/custom/new" class="btn">+ Sérpöntun</a>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <details class="notif-bell">
+        <summary aria-label="Tilkynningar">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 8a6 6 0 1 1 12 0c0 3.4 1 5.5 1.8 6.7.3.4 0 1-.5 1H4.7c-.5 0-.8-.6-.5-1C5 13.5 6 11.4 6 8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9.5 18a2.5 2.5 0 0 0 5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <% if (notifications.count > 0) { %><span class="notif-badge"><%= notifications.count %></span><% } %>
+        </summary>
+        <div class="notif-panel">
+          <% if (notifications.count === 0) { %>
+            <div class="notif-empty">Ekkert nýtt sem bíður.</div>
+          <% } else { %>
+            <% if (notifications.announcements.length > 0) { %>
+              <div class="notif-section-title">Frá Beron</div>
+              <% notifications.announcements.forEach(function(a) { %>
+                <div class="notif-item" style="padding-right:4px;">
+                  <span class="notif-item-title"><%= a.title %></span>
+                  <span class="notif-item-sub"><%= a.body %></span>
+                  <form method="POST" action="/tilkynningar/<%= a.id %>/dismiss" style="margin-top:4px;">
+                    <button type="submit" class="btn btn-sm btn-secondary">Loka</button>
+                  </form>
+                </div>
+              <% }); %>
+            <% } %>
+            <% if (notifications.events.length > 0) { %>
+              <div class="notif-section-title">Framundan</div>
+              <% notifications.events.forEach(function(ev) { %>
+                <a class="notif-item" href="/gift-orders">
+                  <span class="notif-item-title"><%= ev.employee ? ev.employee.name : 'Starfsmaður' %> &middot; <%= eventTypeLabel(ev.event_type) %></span>
+                  <span class="notif-item-sub"><%= ev.daysAway === 0 ? 'Í dag' : (ev.daysAway === 1 ? 'Á morgun' : 'Eftir ' + ev.daysAway + ' daga') %></span>
+                </a>
+              <% }); %>
+            <% } %>
+          <% } %>
+        </div>
+      </details>
+      <a href="/gift-orders/custom/new" class="btn">+ Sérpöntun</a>
+    </div>
   </div>
 
   <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>

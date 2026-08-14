@@ -36,7 +36,9 @@ const TABLES = {
   meetingRequests: 'meeting_requests',
   inquiryMessages: 'inquiry_messages',
   invoicePayments: 'invoice_payments',
-  giftCatalog: 'gift_catalog'
+  giftCatalog: 'gift_catalog',
+  announcements: 'announcements',
+  announcementDismissals: 'announcement_dismissals'
 };
 
 // Columns that are real booleans in JS but stored as 0/1 in SQLite (which has
@@ -45,7 +47,8 @@ const BOOLEAN_FIELDS = {
   companies: ['email_notifications'],
   employees: ['active'],
   subscriptions: ['active'],
-  invoicePayments: ['paid']
+  invoicePayments: ['paid'],
+  events: ['reminder_sent']
 };
 
 function ensureSchema() {
@@ -146,6 +149,21 @@ function ensureSchema() {
       notes TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS announcements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL,
+      company_id INTEGER,
+      title TEXT,
+      body TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS announcement_dismissals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL,
+      announcement_id INTEGER NOT NULL,
+      company_id INTEGER NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS meeting_requests (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       created_at TEXT NOT NULL,
@@ -176,6 +194,15 @@ function ensureSchema() {
   }
   if (!columns.includes('replied_at')) {
     db.exec('ALTER TABLE meeting_requests ADD COLUMN replied_at TEXT');
+  }
+
+  // Whether Beron has already emailed the company's HR contact(s) a
+  // heads-up that this event is coming up (see lib/notifications.js) - keeps
+  // the reminder from firing again every time a page reloads and the daily
+  // workflows re-run.
+  const eventColumns = db.prepare('PRAGMA table_info(events)').all().map((c) => c.name);
+  if (!eventColumns.includes('reminder_sent')) {
+    db.exec('ALTER TABLE events ADD COLUMN reminder_sent INTEGER DEFAULT 0');
   }
 
   // Contacts didn't used to have a phone number on file - added so Beron HQ

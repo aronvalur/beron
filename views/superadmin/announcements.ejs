@@ -1,0 +1,64 @@
+<%- include('../partials/head', { title: 'Tilkynningar' }) %>
+<%- include('../partials/nav') %>
+
+  <div class="page-header">
+    <div>
+      <h1>Tilkynningar</h1>
+      <p class="subtitle">Sendu skilaboð sem birtast í tilkynningabjöllu fyrirtækja - til allra í einu eða á einn tiltekinn.</p>
+    </div>
+  </div>
+
+  <% if (saved) { %><div class="alert alert-success">Sent.</div><% } %>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <div class="card" style="max-width:640px;">
+    <h2>Ný tilkynning</h2>
+    <form method="POST" action="/superadmin/tilkynningar">
+      <div class="field">
+        <label for="target">Til hverra</label>
+        <select id="target" name="target">
+          <option value="all">Allra fyrirtækja</option>
+          <% companies.forEach(function(c) { %>
+            <option value="<%= c.id %>"><%= c.name %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="title">Titill</label>
+        <input type="text" id="title" name="title" required placeholder="t.d. Beron lokað 24. desember">
+      </div>
+      <div class="field">
+        <label for="body">Skilaboð</label>
+        <textarea id="body" name="body" required placeholder="t.d. Skrifstofan er lokuð á aðfangadag - næsta afgreiðsla er 27. desember."></textarea>
+      </div>
+      <button type="submit" class="btn">Senda</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Sendar tilkynningar</h2>
+    <% if (announcements.length === 0) { %>
+      <div class="table-empty">Engar tilkynningar sendar ennþá.</div>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Titill</th><th>Skilaboð</th><th>Til</th><th>Sent</th><th></th></tr></thead>
+        <tbody>
+          <% announcements.forEach(function(a) { %>
+            <tr>
+              <td><%= a.title %></td>
+              <td style="max-width:320px;"><%= a.body %></td>
+              <td><%= a.company ? a.company.name : 'Allra' %></td>
+              <td><%= formatDate(a.created_at) %></td>
+              <td>
+                <form method="POST" action="/superadmin/tilkynningar/<%= a.id %>?_method=DELETE" onsubmit="return confirm('Eyða þessari tilkynningu?');">
+                  <button type="submit" class="btn btn-sm btn-danger">Eyða</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

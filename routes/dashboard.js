@@ -5,6 +5,7 @@ const { runDailyWorkflows, daysBetween, NOTE_CUTOFF_DAYS } = require('../lib/eve
 const { computeInvoice } = require('../lib/pricing');
 const { billingForCompanyMonth } = require('../lib/billing');
 const { eventTypeLabel } = require('../lib/labels');
+const { getCompanyNotifications } = require('../lib/notifications');
 
 const router = express.Router();
 
@@ -75,6 +76,7 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
 
   const invoice = computeInvoice(company.subscription_plan, activeEmployees.length);
   const monthBilling = billingForCompanyMonth(company, today.getFullYear(), today.getMonth());
+  const notifications = getCompanyNotifications(companyId, today);
 
   res.render('dashboard', {
     company,
@@ -85,6 +87,7 @@ router.get('/', requireLogin, requireCompanyAdmin, (req, res) => {
     activeOrders,
     invoice,
     monthBilling,
+    notifications,
     error: req.query.error,
     NOTE_CUTOFF_DAYS
   });
