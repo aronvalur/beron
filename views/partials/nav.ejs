@@ -4,8 +4,16 @@
     <a href="/stop-impersonating" style="color:#1a1200; text-decoration:underline;">Til baka í ofurstjórn</a>
   </div>
 <% } %>
+<div class="mobile-topbar">
+  <button class="mobile-menu-btn" id="sidebarToggle" aria-label="Opna valmynd" aria-expanded="false" aria-controls="appSidebar">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <img src="/images/logo.png" alt="Beron" class="mobile-topbar-logo">
+  <span style="width:34px;"></span>
+</div>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <div class="app-shell">
-  <aside class="sidebar">
+  <aside class="sidebar" id="appSidebar">
     <div class="brand">
       <img src="/images/logo.png" alt="Beron" class="brand-mark-img">
       <span class="brand-name">Beron</span>
