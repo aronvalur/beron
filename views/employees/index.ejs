@@ -24,13 +24,14 @@
     <% } else { %>
       <table id="employee-table">
         <thead>
-          <tr><th>Nafn</th><th>Afmæli</th><th>Deild</th><th>Gjafafjárhæð</th><th>Afhending</th><th>Staða</th><th></th></tr>
+          <tr><th>Nafn</th><th>Afmæli</th><th>Aldur</th><th>Deild</th><th>Gjafafjárhæð</th><th>Afhending</th><th>Staða</th><th></th></tr>
         </thead>
         <tbody>
           <% employees.forEach(function(e) { %>
             <tr data-search="<%= (e.name + ' ' + (e.department || '')).toLowerCase() %>">
               <td><%= e.name %></td>
               <td><%= formatDayMonth(e.birthday) %></td>
+              <td><%= e.age || '—' %></td>
               <td><%= e.department || '—' %></td>
               <td><%= e.birthday_budget ? Number(e.birthday_budget).toLocaleString('is-IS') + ' kr.' : '—' %></td>
               <td><%= deliveryPreferenceLabel(e.delivery_preference, company.name) %></td>

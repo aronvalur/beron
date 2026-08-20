@@ -116,12 +116,13 @@
   <div class="card">
     <h2>Starfsmenn</h2>
     <table>
-      <thead><tr><th>Nafn</th><th>Afmæli</th><th>Deild</th><th>Staða</th></tr></thead>
+      <thead><tr><th>Nafn</th><th>Afmæli</th><th>Aldur</th><th>Deild</th><th>Staða</th></tr></thead>
       <tbody>
         <% employees.forEach(function(e) { %>
           <tr>
             <td><%= e.name %></td>
             <td><%= formatDayMonth(e.birthday) %></td>
+            <td><%= e.age || '—' %></td>
             <td><%= e.department || '—' %></td>
             <td><span class="badge badge-<%= e.active ? 'active' : 'inactive' %>"><%= e.active ? 'Virkur' : 'Óvirkur' %></span></td>
           </tr>

@@ -25,6 +25,11 @@
       </div>
       <div class="field-row">
         <div class="field">
+          <label for="age">Aldur (valfrjálst)</label>
+          <input type="number" id="age" name="age" min="0" max="120" placeholder="t.d. 34" value="<%= employee && employee.age ? employee.age : '' %>">
+          <div class="hint">Notað til að velja gjafir sem henta betur eftir aldri.</div>
+        </div>
+        <div class="field">
           <label for="birthday_budget">Fjárhæð afmælisgjafar (kr.)</label>
           <input type="number" id="birthday_budget" name="birthday_budget" min="0" step="500" placeholder="t.d. 10000" value="<%= employee && employee.birthday_budget ? employee.birthday_budget : '' %>">
           <div class="hint">Notað til að fylla sjálfkrafa út fjárhæðina þegar gjafapöntun er stofnuð fyrir afmæli þessa starfsmanns.</div>

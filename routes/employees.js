@@ -33,6 +33,7 @@ router.post('/', (req, res) => {
     shirt_size: b.shirt_size || '',
     preferences: b.preferences || '',
     notes: b.notes || '',
+    age: b.age ? Number(b.age) : null,
     active: true
   });
   res.redirect('/employees');
@@ -62,7 +63,8 @@ router.put('/:id', (req, res) => {
     delivery_preference: b.delivery_preference || 'to_employee',
     shirt_size: b.shirt_size || '',
     preferences: b.preferences || '',
-    notes: b.notes || ''
+    notes: b.notes || '',
+    age: b.age ? Number(b.age) : null
   });
   res.redirect('/employees');
 });

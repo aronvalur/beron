@@ -88,7 +88,8 @@ function ensureSchema() {
       shirt_size TEXT,
       preferences TEXT,
       notes TEXT,
-      active INTEGER DEFAULT 1
+      active INTEGER DEFAULT 1,
+      age INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS events (
@@ -210,6 +211,13 @@ function ensureSchema() {
   const userColumns = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
   if (!userColumns.includes('phone')) {
     db.exec('ALTER TABLE users ADD COLUMN phone TEXT');
+  }
+
+  // Age wasn't originally tracked per employee - added so gift selection can
+  // be differentiated by age group, not just occasion.
+  const employeeColumns = db.prepare('PRAGMA table_info(employees)').all().map((c) => c.name);
+  if (!employeeColumns.includes('age')) {
+    db.exec('ALTER TABLE employees ADD COLUMN age INTEGER');
   }
 
   // Full back-and-forth thread for "Frá stjórnendum" support fyrirspurnir -
